@@ -8,7 +8,17 @@ public class Gameboard extends JPanel implements KeyListener {
 
     int pacmanSpeed=4;
 
-    Character pacman = new Character(PacmanGame.PACMAN_LIVES,pacmanSpeed, new ImageIcon("src/images/cossack1.png"),new Point(PacmanGame.WINDOW_WIDTH/2,PacmanGame.SCOREBAR_HEIGHT+22*PacmanGame.SQUARE_SIZE));
+    Character pacman = new Character(PacmanGame.PACMAN_LIVES,pacmanSpeed, new ImageIcon("src/images/cossack1.png"),new Point(PacmanGame.WINDOW_WIDTH/2,PacmanGame.SCOREBAR_HEIGHT+23*PacmanGame.SQUARE_SIZE));
+
+    Character chmonya = new Character(1, 4, new ImageIcon("src/images/chmonya1.png"), new Point(PacmanGame.WINDOW_WIDTH/2, (PacmanGame.WINDOW_HEIGHT/2)-PacmanGame.SQUARE_SIZE));
+
+    Character brute = new Character(2, 2, new ImageIcon("src/images/brute1.png"), new Point(PacmanGame.WINDOW_WIDTH/2-2*PacmanGame.SQUARE_SIZE, (PacmanGame.WINDOW_HEIGHT/2)-PacmanGame.SQUARE_SIZE));
+
+    ImageIcon dumpIcon = new ImageIcon("src/images/dumpling.png");
+    Image dumpImage = dumpIcon.getImage();
+    int dotDistance = (int)(PacmanGame.SQUARE_SIZE*0.75/2d);
+    int dotSize = PacmanGame.SQUARE_SIZE-2*dotDistance;
+    Image dumpling = dumpImage.getScaledInstance((int) (dotSize*1.2), (int) (dotSize*1.2), Image.SCALE_SMOOTH);
 
     public Gameboard(int width, int height){
 this.setSize(width, height);
@@ -25,7 +35,8 @@ this.setSize(width, height);
         Graphics2D g2d = (Graphics2D)g;
         printMaze(g2d);
         g2d.drawImage(pacman.getCurrentSprite().getImage(), (int) pacman.getSpawnPoint().getX(), (int) pacman.getSpawnPoint().getY(), this);
-
+        g2d.drawImage(chmonya.getCurrentSprite().getImage(), (int) chmonya.getSpawnPoint().getX(), (int) chmonya.getSpawnPoint().getY(), this);
+        g2d.drawImage(brute.getCurrentSprite().getImage(), (int) brute.getSpawnPoint().getX(), (int) brute.getSpawnPoint().getY(), this);
     }
 
 
@@ -35,20 +46,18 @@ this.setSize(width, height);
 
 
     public void printMaze(Graphics2D g2d){
-        g2d.fillRect(120,0,5,720);
-        g2d.fillRect(0,120,560,5);
+//        g2d.fillRect(120,0,5,720);
+//        g2d.fillRect(0,120,560,5);
 
         for(int i = 0; i< PacmanGame.levelData.length; i++){
             for(int j = 0; j< PacmanGame.levelData[i].length; j++){
                 char current = PacmanGame.levelData[i][j];
                 switch(current){
-                    case 'd' -> {
-                        int dotDistance = (int)(PacmanGame.SQUARE_SIZE*0.75/2d);
-                        int dotSize = PacmanGame.SQUARE_SIZE-2*dotDistance;
+                    case 'd' ->
                         //g2d.setColor(dotColor);
-                        g2d.fillRect(j* PacmanGame.SQUARE_SIZE + dotDistance, PacmanGame.SCOREBAR_HEIGHT+i* PacmanGame.SQUARE_SIZE + dotDistance, dotSize, dotSize);
+                        //g2d.fillRect(j* PacmanGame.SQUARE_SIZE + dotDistance, PacmanGame.SCOREBAR_HEIGHT+i* PacmanGame.SQUARE_SIZE + dotDistance, dotSize, dotSize);
                         // SQUARE_SIZE/4
-                    }
+                        g2d.drawImage(dumpling, j* PacmanGame.SQUARE_SIZE + dotDistance, PacmanGame.SCOREBAR_HEIGHT+i* PacmanGame.SQUARE_SIZE + dotDistance, this);
                     case 'w' -> {
                         int height  =  PacmanGame.SQUARE_SIZE;
                         int width = PacmanGame.SQUARE_SIZE;
@@ -94,16 +103,16 @@ this.setSize(width, height);
     @Override
     public void keyPressed(KeyEvent e) {
         if(e.getKeyCode()==KeyEvent.VK_UP){
-
+            System.out.println("go up");
         }
         if(e.getKeyCode()==KeyEvent.VK_DOWN){
-
+            System.out.println("go down");
         }
         if(e.getKeyCode()==KeyEvent.VK_LEFT){
-
+            System.out.println("go left");
         }
         if(e.getKeyCode()==KeyEvent.VK_RIGHT){
-
+            System.out.println("go right");
         }
     }
 

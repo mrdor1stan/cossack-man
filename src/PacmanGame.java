@@ -37,7 +37,7 @@ public class PacmanGame {
 
     static char[][] levelData = new char[LEVEL_DATA.length][LEVEL_DATA[0].length()];
 
-    public static final int SQUARE_SIZE = 20;
+    public static final int SQUARE_SIZE = 28;
     public static final int SCOREBAR_HEIGHT = 3*SQUARE_SIZE;
     public static final int LIVES_BAR_HEIGHT = 2*SQUARE_SIZE;
     public static final int WINDOW_HEIGHT = LEVEL_DATA.length*SQUARE_SIZE + SCOREBAR_HEIGHT+LIVES_BAR_HEIGHT;
@@ -47,11 +47,11 @@ public class PacmanGame {
     public static void main(String[] args) {
 
         inspectLevelDataError();
-        JFrame gamefield = new JFrame("Pac, You're It");
+        JFrame gamefield = new JFrame("Pac, You're It"); //Pa-Cossack-Man?
 
         gamefield.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         gamefield.add(new Gameboard(WINDOW_WIDTH, WINDOW_HEIGHT));
-        gamefield.setSize(576, 758);
+        gamefield.setSize(800, 1034);
         gamefield.setVisible(true);
         System.out.println(gamefield.getSize());
     }
