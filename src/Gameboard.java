@@ -8,7 +8,7 @@ public class Gameboard extends JPanel implements KeyListener {
 
     int pacmanSpeed=4;
 
-    Character pacman = new Character(PacmanGame.PACMAN_LIVES,pacmanSpeed, new ImageIcon("src/images/kozak.jpg"),new Point(PacmanGame.WINDOW_WIDTH/2,PacmanGame.SCOREBAR_HEIGHT+22*PacmanGame.SQUARE_SIZE));
+    Character pacman = new Character(PacmanGame.PACMAN_LIVES,pacmanSpeed, new ImageIcon("src/images/cossack1.png"),new Point(PacmanGame.WINDOW_WIDTH/2,PacmanGame.SCOREBAR_HEIGHT+22*PacmanGame.SQUARE_SIZE));
 
     public Gameboard(int width, int height){
 this.setSize(width, height);
