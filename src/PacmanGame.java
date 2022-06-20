@@ -53,7 +53,7 @@ public class PacmanGame {
         gamefield.add(new Gameboard(WINDOW_WIDTH, WINDOW_HEIGHT));
         gamefield.setSize(800, 1034);
         gamefield.setVisible(true);
-        System.out.println(gamefield.getSize());
+        gamefield.setResizable(false);
     }
 
     private static void inspectLevelDataError() {
