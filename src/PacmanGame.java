@@ -1,3 +1,4 @@
+
 import javax.swing.*;
 
 public class PacmanGame {
@@ -42,10 +43,12 @@ public class PacmanGame {
     public static final int LIVES_BAR_HEIGHT = 2*SQUARE_SIZE;
     public static final int WINDOW_HEIGHT = LEVEL_DATA.length*SQUARE_SIZE + SCOREBAR_HEIGHT+LIVES_BAR_HEIGHT;
     public static final int WINDOW_WIDTH = LEVEL_DATA[0].length()*SQUARE_SIZE;
+
+    public static final int GAME_WIDTH = PacmanGame.WINDOW_WIDTH;
+    public static final int GAME_HEIGHT = PacmanGame.WINDOW_HEIGHT-PacmanGame.SCOREBAR_HEIGHT-PacmanGame.LIVES_BAR_HEIGHT;
     public static final int PACMAN_LIVES = 3;
 
     public static void main(String[] args) {
-
         inspectLevelDataError();
         JFrame gamefield = new JFrame("Pac, You're It"); //Pa-Cossack-Man?
 
@@ -54,6 +57,7 @@ public class PacmanGame {
         gamefield.setSize(800, 1034);
         gamefield.setVisible(true);
         gamefield.setResizable(false);
+        gamefield.setLocationRelativeTo(null);
     }
 
     private static void inspectLevelDataError() {
