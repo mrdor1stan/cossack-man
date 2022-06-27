@@ -26,10 +26,13 @@ public class Character{
         this.speed = speed;
         this.currentSprite = currentSprite;
         this.spawnPoint = spawnPoint;
-        
     }
 
-    public enum Movement{UP,DOWN,LEFT,RIGHT};
+    public Rectangle getCollisions() {
+        return new Rectangle(spawnPoint.x, spawnPoint.y, currentSprite.getIconWidth(), currentSprite.getIconHeight());
+    }
+
+    public enum Movement{UP,DOWN,LEFT,RIGHT}
     public enum Mode {SCATTER, CHASE, EATEN, FRIGHTENED, MANUAL}
 
     public Movement getCurrentMovement() {
