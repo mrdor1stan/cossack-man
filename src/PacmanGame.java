@@ -1,5 +1,6 @@
 
 import javax.swing.*;
+import java.awt.*;
 
 public class PacmanGame {
     static String[] LEVEL_DATA = new String[]{
@@ -51,7 +52,6 @@ public class PacmanGame {
     public static void main(String[] args) {
         inspectLevelDataError();
         JFrame gamefield = new JFrame("Pac, You're It"); //Pa-Cossack-Man?
-
         gamefield.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         gamefield.add(new Gameboard(WINDOW_WIDTH, WINDOW_HEIGHT));
         gamefield.setSize(800, 1034);

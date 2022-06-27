@@ -35,6 +35,10 @@ public class Character{
     public enum Movement{UP,DOWN,LEFT,RIGHT}
     public enum Mode {SCATTER, CHASE, EATEN, FRIGHTENED, MANUAL}
 
+    public void setSpawnPoint(Point newSpawnPoint) {
+        spawnPoint = newSpawnPoint;
+    }
+
     public Movement getCurrentMovement() {
         return currentMovement;
     }

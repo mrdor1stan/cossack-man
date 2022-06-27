@@ -7,15 +7,47 @@ import java.awt.event.KeyListener;
 
 public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
-    Timer tm = new Timer(5, this);
+    static int timer = 100;
 
+    JLabel timeShowcase;
+
+    int countdown;
+    private final Point pacmanDefaultSpawn = new Point(PacmanGame.GAME_WIDTH/2,PacmanGame.SCOREBAR_HEIGHT+23*PacmanGame.SQUARE_SIZE);
+
+    Timer tm = new Timer(5, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            countdown++;
+            if(countdown==10) {
+                countdown=0;
+                timer--;
+                timeShowcase.setText("TIME: "+timer);
+            }
+            if(timer==0) {
+                tm.stop();
+                pacman.livesLeft--;
+                if(pacman.livesLeft!=0) {
+                    pacman.setSpawnPoint(pacmanDefaultSpawn);
+                    timer=100;
+                    tm.start();
+                }
+                else {
+                    System.out.println("Ну їх в баню, тих москалів. Втомився за ними бігати.");
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+    });
     int pacmanSpeed=4;
 
     boolean isColliding;
-    int timer = 100;
     int dumplingsEaten = 0;
 
-    Character pacman = new Character(PacmanGame.PACMAN_LIVES, pacmanSpeed, new ImageIcon("src/images/cossack1.png"),new Point(PacmanGame.GAME_WIDTH/2,PacmanGame.SCOREBAR_HEIGHT+23*PacmanGame.SQUARE_SIZE));
+    Character pacman = new Character(PacmanGame.PACMAN_LIVES, pacmanSpeed, new ImageIcon("src/images/cossack1.png"), pacmanDefaultSpawn);
     //X selects String (vertical movement), Y selects char (horizontal movement)
     double map_y = (pacman.getSpawnPoint().y-3*PacmanGame.SQUARE_SIZE)/28d;
     double map_x = pacman.getSpawnPoint().x/28d;
@@ -34,11 +66,15 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     public Gameboard(int width, int height){
         this.setSize(width, height);
-        tm.start();
+        timeShowcase = new JLabel("TIME: "+timer);
+        Dimension size = timeShowcase.getPreferredSize();
+        timeShowcase.setBounds(100,100, size.width, size.height);
+        timeShowcase.setFont(new Font("Sans Serif", Font.BOLD, 16));
+        add(timeShowcase);
         addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
-        System.out.println(map_x +" "+ map_y);
+        tm.addActionListener(this);
     }
 
     @Override
@@ -113,6 +149,15 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+        if(e.getKeyCode()==KeyEvent.VK_SPACE) {
+            tm.start();
+        }
+        if(e.getKeyCode()==KeyEvent.VK_P){
+            if(tm.isRunning())
+                tm.stop();
+            else
+                tm.start();
+        }
         if(e.getKeyCode()==KeyEvent.VK_UP){
             pacman.setCurrentMovement(Character.Movement.UP);
         }
@@ -225,8 +270,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
         if(PacmanGame.levelData[(int) map_y][(int) map_x] == 'd') {
             PacmanGame.levelData[(int) map_y][(int) map_x] = ' ';
             dumplingsEaten++;
-            if(dumplingsEaten==5) {
-                timer += 20;
+            if(dumplingsEaten==10) {
+                timer += 10;
                 dumplingsEaten = 0;
             }
         }
@@ -244,8 +289,6 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 //
 //            }
 //        }
-//        System.out.println(timer);
-
         repaint();
     }
 }
