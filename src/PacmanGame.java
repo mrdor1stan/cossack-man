@@ -16,9 +16,9 @@ public class PacmanGame {
             "wwwwwwdwwwww ww wwwwwdwwwwww",
             "     wdwwwww ww wwwwwdw     ",
             "     wdww          wwdw     ",
-            "     wdww www  www wwdw     ",
-            "wwwwwwdww w      w wwdwwwwww",
-            "      d   w      w   d      ",
+            "     wdww          wwdw     ",
+            "wwwwwwdww          wwdwwwwww",
+            "      d   www  www   d      ",
             "wwwwwwdww w      w wwdwwwwww",
             "     wdww wwwwwwww wwdw     ",
             "     wdww          wwdw     ",
@@ -51,7 +51,7 @@ public class PacmanGame {
 
     public static void main(String[] args) {
         inspectLevelDataError();
-        JFrame gamefield = new JFrame("Pac, You're It"); //Pa-Cossack-Man?
+        JFrame gamefield = new JFrame("Cossack-Man"); //Pa-Cossack-Man?
         gamefield.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         gamefield.add(new Gameboard(WINDOW_WIDTH, WINDOW_HEIGHT));
         gamefield.setSize(800, 1034);
