@@ -53,7 +53,7 @@ public class Character{
         return currentMovement;
     }
 
-    Movement currentMovement = Movement.DOWN;
+    Movement currentMovement = Movement.RIGHT;
 
     public void setCurrentMovement(Movement m){
         currentMovement = m;
