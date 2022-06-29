@@ -11,7 +11,9 @@ import java.util.stream.Collectors;
 
 public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
+
     static int timer = 100;
+    private static final int TIMER_DELAY = (int)(timer*1.5)/9;
 int level = 0;
     JLabel timeShowcase;
 
@@ -29,7 +31,7 @@ int level = 0;
             if (countdown == 10) {
                 countdown = 0;
                 timer--;
-                timeShowcase.setText("TIME: " + timer/6);
+                timeShowcase.setText("TIME: " + timer/TIMER_DELAY);
             }
             if (timer == 0) {
                 death=false;
@@ -127,11 +129,22 @@ int level = 0;
         g2d.drawImage(bg.getImage(),0,0,this);
 
         printMaze(g2d);
+        drawHunger(g2d);
         drawLives(g2d);
         for (Character c : characters) {
             g2d.drawImage(c.getCurrentSprite().getImage(), (int) c.getSpawnPoint().getX(), (int) c.getSpawnPoint().getY(), this);
         }
     }
+
+    private void drawHunger(Graphics2D g2d) {
+
+        int diff = 135;
+        for(int i=0;i<timer/TIMER_DELAY && i<9; i++) {
+            g2d.drawImage(dumpImage, diff + (10 + dumpImage.getWidth(this))*i, (int) ((PacmanGame.SCOREBAR_HEIGHT-dumpImage.getHeight(this))/2), this);
+        }
+
+    }
+
     ImageIcon bg = new ImageIcon("src/images/background.jpg");
     ImageIcon heartIcon = new ImageIcon("src/images/cossackHeartFull.png");
     ImageIcon brokenHeartIcon = new ImageIcon("src/images/cossackHeartEmpty.png");
