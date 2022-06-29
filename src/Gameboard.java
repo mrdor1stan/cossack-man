@@ -32,12 +32,14 @@ int level = 0;
                 timeShowcase.setText("TIME: " + timer/6);
             }
             if (timer == 0) {
+                death=false;
                 tm.stop();
                 pacman.livesLeft--;
                 if (pacman.livesLeft > 0) {
                     pacman.setSpawnPoint(pacmanDefaultSpawn);
                     timer = 100;
                     tm.start();
+                    death=true;
                 } else {
                     System.out.println("Ну їх в баню, тих москалів. Втомився за ними бігати.");
                 }
@@ -115,15 +117,34 @@ int level = 0;
         doDrawing(g);
     }
     boolean levelWon=true;
+    boolean death;
     private void doDrawing(Graphics g) {
 
         if(levelWon){
             setUpLevel();
         }
         Graphics2D g2d = (Graphics2D) g;
+        g2d.drawImage(bg.getImage(),0,0,this);
+
         printMaze(g2d);
+        drawLives(g2d);
         for (Character c : characters) {
             g2d.drawImage(c.getCurrentSprite().getImage(), (int) c.getSpawnPoint().getX(), (int) c.getSpawnPoint().getY(), this);
+        }
+    }
+    ImageIcon bg = new ImageIcon("src/images/background.jpg");
+    ImageIcon heartIcon = new ImageIcon("src/images/cossackHeartFull.png");
+    ImageIcon brokenHeartIcon = new ImageIcon("src/images/cossackHeartEmpty.png");
+    private void drawLives(Graphics2D g2d) {
+        int diff = 125;
+        for(int i=0;i< pacman.livesLeft; i++) {
+            g2d.drawImage(heartIcon.getImage(), diff + (10 + heartIcon.getImage().getWidth(this))*i, (int) ((PacmanGame.LEVEL_DATA.length+0.25)* PacmanGame.SQUARE_SIZE + PacmanGame.SCOREBAR_HEIGHT), this);
+        }
+
+        if(pacman.livesLeft<3){
+            for(int i=pacman.livesLeft;i< 3; i++) {
+                g2d.drawImage(brokenHeartIcon.getImage(), diff + (10 + heartIcon.getImage().getWidth(this)) * i, (int) ((PacmanGame.LEVEL_DATA.length + 0.25) * PacmanGame.SQUARE_SIZE + PacmanGame.SCOREBAR_HEIGHT), this);
+            }
         }
     }
 
@@ -172,7 +193,7 @@ int level = 0;
                         // SQUARE_SIZE/4
                             g2d.drawImage(dumpling, j * PacmanGame.SQUARE_SIZE + dotDistance, PacmanGame.SCOREBAR_HEIGHT + i * PacmanGame.SQUARE_SIZE + dotDistance, this);
 
-                    case 'w' -> {
+                    /*case 'w' -> {
                         int height = PacmanGame.SQUARE_SIZE;
                         int width = PacmanGame.SQUARE_SIZE;
                         int x_pos = j * PacmanGame.SQUARE_SIZE;
@@ -203,7 +224,7 @@ int level = 0;
 //                    g2d.drawRect(x_pos, y_pos, width, height);
                         wall = new Rectangle(x_pos, y_pos, width, height);
                         g2d.draw(wall);
-                    }
+                    }*/
                 }
             }
         }
