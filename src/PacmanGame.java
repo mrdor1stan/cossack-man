@@ -54,7 +54,7 @@ public class PacmanGame {
         JFrame gamefield = new JFrame("Cossack-Man"); //Pa-Cossack-Man?
         gamefield.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         gamefield.add(new Gameboard(WINDOW_WIDTH, WINDOW_HEIGHT));
-        gamefield.setSize(800, 1034);
+        gamefield.setSize(798, 1032);
         gamefield.setVisible(true);
         gamefield.setResizable(false);
         gamefield.setLocationRelativeTo(null);

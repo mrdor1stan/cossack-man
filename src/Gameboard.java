@@ -6,22 +6,22 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
-
+    int score = 0;
     static int timer = 100;
     private static final int TIMER_DELAY = (int)(timer*1.5)/9;
-int level = 0;
-    JLabel timeShowcase;
+    int level = 0;
+    JLabel scoreShowcase;
 
     int countdown;
-    private final Point pacmanDefaultSpawn = new Point(PacmanGame.GAME_WIDTH / 2 - 16, PacmanGame.SCOREBAR_HEIGHT + 23 * PacmanGame.SQUARE_SIZE);
-    private final Point ghost2DefaultSpawn = new Point(PacmanGame.GAME_WIDTH / 2 - 16, PacmanGame.SCOREBAR_HEIGHT + 15 * PacmanGame.SQUARE_SIZE);
-    private final Point ghost1DefaultSpawn = new Point(PacmanGame.GAME_WIDTH / 2 - 16 - 32 * 2, PacmanGame.SCOREBAR_HEIGHT + 15 * PacmanGame.SQUARE_SIZE);
-    private final Point ghost3DefaultSpawn = new Point(PacmanGame.GAME_WIDTH / 2 - 16 + 32 * 2, PacmanGame.SCOREBAR_HEIGHT + 15 * PacmanGame.SQUARE_SIZE);
+    private final Point pacmanDefaultSpawn = new Point(PacmanGame.GAME_WIDTH / 2 - 16, PacmanGame.SCOREBAR_HEIGHT + 12 * PacmanGame.SQUARE_SIZE);
+    private final Point ghost1DefaultSpawn = new Point(PacmanGame.SQUARE_SIZE, PacmanGame.SCOREBAR_HEIGHT + PacmanGame.SQUARE_SIZE);
+    private final Point ghost2DefaultSpawn = new Point(PacmanGame.SQUARE_SIZE, PacmanGame.SCOREBAR_HEIGHT + 14 * PacmanGame.SQUARE_SIZE);
+    private final Point ghost3DefaultSpawn = new Point(PacmanGame.GAME_WIDTH - 2 * PacmanGame.SQUARE_SIZE, PacmanGame.SCOREBAR_HEIGHT + PacmanGame.SQUARE_SIZE);
     private final Point ghost4DefaultSpawn = new Point(PacmanGame.GAME_WIDTH / 2 - 16, PacmanGame.SCOREBAR_HEIGHT + 13 * PacmanGame.SQUARE_SIZE);
 
     Timer tm = new Timer(10, new ActionListener() {
@@ -31,7 +31,7 @@ int level = 0;
             if (countdown == 10) {
                 countdown = 0;
                 timer--;
-                timeShowcase.setText("TIME: " + timer/TIMER_DELAY);
+//                timeShowcase.setText("TIME: " + timer/TIMER_DELAY);
             }
             if (timer == 0) {
                 death=false;
@@ -39,7 +39,7 @@ int level = 0;
                 pacman.livesLeft--;
                 if (pacman.livesLeft > 0) {
                     pacman.setSpawnPoint(pacmanDefaultSpawn);
-                    timer = 100;
+                    timer = 120;
                     tm.start();
                     death=true;
                 } else {
@@ -100,16 +100,10 @@ int level = 0;
 
     public Gameboard(int width, int height) {
         this.setSize(width, height);
-        timeShowcase = new JLabel("TIME: " + timer);
-        Dimension size = timeShowcase.getPreferredSize();
-        timeShowcase.setBounds(100, 100, size.width, size.height);
-        timeShowcase.setFont(new Font("Sans Serif", Font.BOLD, 16));
-        add(timeShowcase);
         addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
         tm.addActionListener(this);
-
     }
 
     @Override
@@ -140,12 +134,12 @@ int level = 0;
 
         int diff = 135;
         for(int i=0;i<timer/TIMER_DELAY && i<9; i++) {
-            g2d.drawImage(dumpImage, diff + (10 + dumpImage.getWidth(this))*i, (int) ((PacmanGame.SCOREBAR_HEIGHT-dumpImage.getHeight(this))/2), this);
+            g2d.drawImage(dumpImage, diff + (10 + dumpImage.getWidth(this))*i, ((PacmanGame.SCOREBAR_HEIGHT-dumpImage.getHeight(this))/2), this);
         }
 
     }
 
-    ImageIcon bg = new ImageIcon("src/images/background.jpg");
+    ImageIcon bg = new ImageIcon("src/images/gamemap.png");
     ImageIcon heartIcon = new ImageIcon("src/images/cossackHeartFull.png");
     ImageIcon brokenHeartIcon = new ImageIcon("src/images/cossackHeartEmpty.png");
     private void drawLives(Graphics2D g2d) {
@@ -167,27 +161,20 @@ int level = 0;
         switch(level){
             case 1-> {
                 characters=new ArrayList<>();
-                for (Character c: level1Setup) {
-                    characters.add(c);
-                }
+                Collections.addAll(characters, level1Setup);
 
             }
             case 2-> {
                 characters=new ArrayList<>();
-                for (Character c: level2Setup) {
-                characters.add(c);
-            } }
+                characters.addAll(Arrays.asList(level2Setup));
+            }
             case 3-> {
                 characters = new ArrayList<>();
-                for (Character c : level3Setup) {
-                    characters.add(c);
-                }
+                characters.addAll(Arrays.asList(level3Setup));
             }
             case 4-> {
                 characters = new ArrayList<>();
-                for (Character c : level4Setup) {
-                    characters.add(c);
-                }
+                characters.addAll(Arrays.asList(level4Setup));
             }
         }
     }
@@ -311,6 +298,8 @@ int level = 0;
                         [(pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE] = ' ';
                 dumplingsEaten++;
                 if (dumplingsEaten == 10) {
+//                    score+=100;
+//                    scoreShowcase.setText(score+" pts");
                     timer += 10;
                     dumplingsEaten = 0;
                 }

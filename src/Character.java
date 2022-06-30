@@ -28,8 +28,8 @@ public class Character{
         this.speed = speed;
         this.currentSprite = currentSprite;
         this.spawnPoint = spawnPoint;
-       this.width = width;
-       this.height = height;
+        this.width = width;
+        this.height = height;
     }
 
     public Character(int livesLeft, int speed, ImageIcon currentSprite, Point spawnPoint) {
