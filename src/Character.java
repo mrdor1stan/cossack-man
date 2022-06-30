@@ -46,14 +46,15 @@ public class Character{
     public enum Mode {SCATTER, CHASE, EATEN, FRIGHTENED, MANUAL}
 
     public void setSpawnPoint(Point newSpawnPoint) {
-        spawnPoint = newSpawnPoint;
+        spawnPoint.x = (int) newSpawnPoint.getX();
+        spawnPoint.y = (int) newSpawnPoint.getY();
     }
 
     public Movement getCurrentMovement() {
         return currentMovement;
     }
 
-    Movement currentMovement = Movement.RIGHT;
+    Movement currentMovement = Movement.DOWN;
 
     public void setCurrentMovement(Movement m){
         currentMovement = m;
