@@ -104,6 +104,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
         tm.addActionListener(this);
+
     }
 
     @Override
@@ -236,9 +237,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            tm.start();
-        }
+
         if (e.getKeyCode() == KeyEvent.VK_P) {
             if (tm.isRunning())
                 tm.stop();
@@ -279,17 +278,56 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+            tm.start();
+        }
     }
 
 
     public void actionPerformed(ActionEvent e) {
        determineEnemiesPoint();
         moveCharacters();
-        checkCollisions();
+        checkDumplingsCollisions();
+        checkEnemiesCollisions();
         repaint();
     }
 
-    private void checkCollisions() {
+   private void checkEnemiesCollisions() {
+      for(Character c:characters){
+    if(c!=pacman){
+        if (pacman.getSpawnPoint().x >= 0 && pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) <= PacmanGame.WINDOW_WIDTH) {
+            int pacX = (pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE;
+            int pacY = (pacman.getSpawnPoint().y + pacman.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE;
+            int charX = (c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE;
+            int charY = (c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE;
+
+            if(pacX==charX && pacY==charY){
+                enemyEaten(c);
+            }
+        }
+}
+       }
+
+
+
+   }
+
+    private void enemyEaten(Character toDelete) {
+        if(toDelete.death() == 0) {
+            ArrayList<Character> newCharacters = new ArrayList<Character>();
+
+            for (Character c : characters) {
+                if (c != toDelete)
+                    newCharacters.add(c);
+
+            }
+            characters = newCharacters;
+            if (characters.size() == 1)
+                levelWon = true;
+        }
+    }
+
+    private void checkDumplingsCollisions() {
         //Eating dumplings; eating 5 gives a 20 second boost
         if(pacman.getSpawnPoint().x>=0 && pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this)<=PacmanGame.WINDOW_WIDTH) {
             if (PacmanGame.levelData[(pacman.getSpawnPoint().y + pacman.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
@@ -298,8 +336,6 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                         [(pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE] = ' ';
                 dumplingsEaten++;
                 if (dumplingsEaten == 10) {
-//                    score+=100;
-//                    scoreShowcase.setText(score+" pts");
                     timer += 10;
                     dumplingsEaten = 0;
                 }

@@ -38,10 +38,11 @@ public class Character{
         this.currentSprite = currentSprite;
         this.spawnPoint = spawnPoint;
     }
-    public Rectangle getCollisions() {
-        return new Rectangle(spawnPoint.x, spawnPoint.y, currentSprite.getIconWidth(), currentSprite.getIconHeight());
-    }
 
+  public int death(){
+        livesLeft--;
+        return livesLeft;
+  }
     public enum Movement{UP,DOWN,LEFT,RIGHT}
     public enum Mode {SCATTER, CHASE, EATEN, FRIGHTENED, MANUAL}
 
