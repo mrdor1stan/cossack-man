@@ -70,27 +70,26 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     ArrayList<Character> characters;
 
     Character[][] levelSetup = new Character[][]{{
-            pacman, new Character(1, speeds[0], new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
-            new Character(1, speeds[0], new ImageIcon("src/images/chmonya1.png"), ghost2DefaultSpawn),
-            new Character(1, speeds[0], new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn)
+            pacman, new Character(1, speeds[0], new ImageIcon("src/images/chmonya1.png"), new Point((int) ghost1DefaultSpawn.getX(), (int) ghost1DefaultSpawn.getY())),
+            new Character(1, speeds[0], new ImageIcon("src/images/chmonya1.png"), new Point((int) ghost2DefaultSpawn.getX(), (int) ghost2DefaultSpawn.getY())),
+            new Character(1, speeds[0], new ImageIcon("src/images/chmonya1.png"), new Point((int) ghost3DefaultSpawn.getX(), (int) ghost3DefaultSpawn.getY()))
     },
-            { pacman, new Character(1, speeds[1], new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
-                    new Character(2, speeds[1], new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
-                    new Character(1, speeds[1], new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn)
+            { pacman, new Character(1, speeds[1], new ImageIcon("src/images/chmonya1.png"), new Point((int) ghost1DefaultSpawn.getX(), (int) ghost1DefaultSpawn.getY())),
+                    new Character(2, speeds[1], new ImageIcon("src/images/brute1.png"), new Point((int) ghost2DefaultSpawn.getX(), (int) ghost2DefaultSpawn.getY())),
+                    new Character(1, speeds[1], new ImageIcon("src/images/chmonya1.png"), new Point((int) ghost3DefaultSpawn.getX(), (int) ghost3DefaultSpawn.getY()))
             },
             {
-                    pacman, new Character(1, speeds[2], new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
-                    new Character(2, speeds[2], new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
-                    new Character(1, speeds[2], new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn),
-                    new Character(2, speeds[2], new ImageIcon("src/images/brute1.png"), ghost4DefaultSpawn),
+                    pacman, new Character(1, speeds[2], new ImageIcon("src/images/chmonya1.png"), new Point((int) ghost1DefaultSpawn.getX(), (int) ghost1DefaultSpawn.getY())),
+                    new Character(2, speeds[2], new ImageIcon("src/images/brute1.png"), new Point((int) ghost2DefaultSpawn.getX(), (int) ghost2DefaultSpawn.getY())),
+                    new Character(1, speeds[2], new ImageIcon("src/images/chmonya1.png"), new Point((int) ghost3DefaultSpawn.getX(), (int) ghost3DefaultSpawn.getY())),
+                    new Character(2, speeds[2], new ImageIcon("src/images/brute1.png"),new Point((int) ghost4DefaultSpawn.getX(), (int) ghost4DefaultSpawn.getY()))
 
             },
             {
-                    pacman, new Character(2, speeds[3], new ImageIcon("src/images/brute1.png"), ghost1DefaultSpawn),
-                    new Character(2, speeds[3], new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
-                    new Character(2, speeds[3], new ImageIcon("src/images/brute1.png"), ghost3DefaultSpawn),
-                    new Character(2, speeds[3], new ImageIcon("src/images/brute1.png"), ghost4DefaultSpawn),
-
+                    pacman, new Character(2, speeds[3], new ImageIcon("src/images/brute1.png"), new Point((int) ghost1DefaultSpawn.getX(), (int) ghost1DefaultSpawn.getY())),
+                    new Character(2, speeds[3], new ImageIcon("src/images/brute1.png"), new Point((int) ghost2DefaultSpawn.getX(), (int) ghost2DefaultSpawn.getY())),
+                    new Character(2, speeds[3], new ImageIcon("src/images/brute1.png"), new Point((int) ghost3DefaultSpawn.getX(), (int) ghost3DefaultSpawn.getY())),
+                    new Character(2, speeds[3], new ImageIcon("src/images/brute1.png"), new Point((int) ghost4DefaultSpawn.getX(), (int) ghost4DefaultSpawn.getY()))
             }
 
     };
@@ -165,11 +164,21 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     }
 
     private void setUpLevel() {
-        level++;
-        timer = DEFAULT_TIMER;
-        levelWon = false;
-        characters = new ArrayList<>();
-        Collections.addAll(characters, levelSetup[level-1]);
+        if(level<levelSetup.length) {
+            PacmanGame.updateDots();
+            pacman.setSpawnPoint(pacmanDefaultSpawn);
+            level++;
+            timer = DEFAULT_TIMER;
+            levelWon = false;
+            characters = new ArrayList<>();
+            Collections.addAll(characters, levelSetup[level - 1]);
+        } else {
+            gameWon();
+        }
+    }
+
+    private void gameWon() {
+        tm.stop();
     }
 
     public void printMaze(Graphics2D g2d) {
