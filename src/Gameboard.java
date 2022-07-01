@@ -28,6 +28,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     private final Point ghost3DefaultSpawn = new Point(PacmanGame.GAME_WIDTH - 2 * PacmanGame.SQUARE_SIZE, PacmanGame.SCOREBAR_HEIGHT + PacmanGame.SQUARE_SIZE);
     private final Point ghost4DefaultSpawn = new Point(PacmanGame.GAME_WIDTH / 2 - 16, PacmanGame.SCOREBAR_HEIGHT + 13 * PacmanGame.SQUARE_SIZE);
 
+    int[] speeds = new int[]{4,4,5,6,7};
     Timer tm = new Timer(10, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -57,7 +58,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
             }
         }
     });
-    int pacmanSpeed = 6;
+    int pacmanSpeed = 5;
     int dumplingsEaten = 0;
 
     Character pacman = new Character(PacmanGame.PACMAN_LIVES, pacmanSpeed, new ImageIcon("src/images/cossack1.png"), pacmanDefaultSpawn, new ImageIcon("src/images/cossack1.png").getImage().getWidth(this), new ImageIcon("src/images/cossack1.png").getImage().getHeight(this));
@@ -67,33 +68,32 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     ArrayList<Character> characters;
 
-    Character[] level1Setup = new Character[]{
-            pacman, new Character(1, 5, new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
-            new Character(1, 5, new ImageIcon("src/images/chmonya1.png"), ghost2DefaultSpawn),
-            new Character(1, 5, new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn)
+    Character[][] levelSetup = new Character[][]{{
+            pacman, new Character(1, speeds[0], new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
+            new Character(1, speeds[0], new ImageIcon("src/images/chmonya1.png"), ghost2DefaultSpawn),
+            new Character(1, speeds[0], new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn)
+    },
+            { pacman, new Character(1, speeds[1], new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
+                    new Character(2, speeds[1], new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
+                    new Character(1, speeds[1], new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn)
+            },
+            {
+                    pacman, new Character(1, speeds[2], new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
+                    new Character(2, speeds[2], new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
+                    new Character(1, speeds[2], new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn),
+                    new Character(2, speeds[2], new ImageIcon("src/images/brute1.png"), ghost4DefaultSpawn),
+
+            },
+            {
+                    pacman, new Character(2, speeds[3], new ImageIcon("src/images/brute1.png"), ghost1DefaultSpawn),
+                    new Character(2, speeds[3], new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
+                    new Character(2, speeds[3], new ImageIcon("src/images/brute1.png"), ghost3DefaultSpawn),
+                    new Character(2, speeds[3], new ImageIcon("src/images/brute1.png"), ghost4DefaultSpawn),
+
+            }
 
     };
 
-    Character[] level2Setup = new Character[]{
-            pacman, new Character(1, 3, new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
-            new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
-            new Character(1, 3, new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn)
-
-    };
-    Character[] level3Setup = new Character[]{
-            pacman, new Character(1, 3, new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
-            new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
-            new Character(1, 3, new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn),
-            new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost4DefaultSpawn),
-
-    };
-    Character[] level4Setup = new Character[]{
-            pacman, new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost1DefaultSpawn),
-            new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
-            new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost3DefaultSpawn),
-            new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost4DefaultSpawn),
-
-    };
 
     ImageIcon dumpIcon = new ImageIcon("src/images/dumpling.png");
     Image dumpImage = dumpIcon.getImage();
@@ -166,25 +166,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     private void setUpLevel() {
         level++;
         levelWon = false;
-        switch (level) {
-            case 1 -> {
-                characters = new ArrayList<>();
-                Collections.addAll(characters, level1Setup);
-
-            }
-            case 2 -> {
-                characters = new ArrayList<>();
-                characters.addAll(Arrays.asList(level2Setup));
-            }
-            case 3 -> {
-                characters = new ArrayList<>();
-                characters.addAll(Arrays.asList(level3Setup));
-            }
-            case 4 -> {
-                characters = new ArrayList<>();
-                characters.addAll(Arrays.asList(level4Setup));
-            }
-        }
+        characters = new ArrayList<>();
+        Collections.addAll(characters, levelSetup[level-1]);
     }
 
     public void printMaze(Graphics2D g2d) {
@@ -405,138 +388,16 @@ c.setSpawnPoint(determinePoint(c));
                 }
             } catch (IndexOutOfBoundsException e) {
                 if (spawnPoint.getX() <= -c.getCurrentSprite().getImage().getWidth(this))
-                    spawnPoint.x = PacmanGame.levelData[0].length * PacmanGame.SQUARE_SIZE - c.speed;
+                    spawnPoint.x = PacmanGame.WINDOW_WIDTH - c.speed;
                 else if (spawnPoint.getX() >= PacmanGame.WINDOW_WIDTH)
                     spawnPoint.x = -c.getCurrentSprite().getImage().getWidth(this) + c.speed;
+                spawnPoint.y = PacmanGame.SQUARE_SIZE*14+PacmanGame.SCOREBAR_HEIGHT+diff;
             }
 
 
         }
         return spawnPoint;
     }
-
-
-
-    /*private void determineEnemiesPoint() {
-        for (Character c : characters) {
-            if (c != pacman) {
-                int diff = 3;
-                ArrayList<Character.Movement> possibleDirections = new ArrayList<>();
-                switch (c.getCurrentMovement()) {
-                    case UP -> {
-
-                        //up middle check
-                        if (PacmanGame.levelData[(c.getSpawnPoint().y - PacmanGame.SCOREBAR_HEIGHT +diff - PacmanGame.SQUARE_SIZE/2) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE] != 'w') {
-                            possibleDirections.add(Character.Movement.UP);
-                        }
-
-                        //right check
-                        if (PacmanGame.levelData[(c.getSpawnPoint().y -
-                                PacmanGame.SCOREBAR_HEIGHT + diff) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) + PacmanGame.SQUARE_SIZE/2 - diff) / PacmanGame.SQUARE_SIZE] != 'w'
-                                && PacmanGame.levelData[(c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) - diff -
-                                PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) +  PacmanGame.SQUARE_SIZE/2 - diff) / PacmanGame.SQUARE_SIZE] != 'w') {
-                            possibleDirections.add(Character.Movement.RIGHT);
-                        }
-
-                        //left check
-                        if (PacmanGame.levelData[(c.getSpawnPoint().y + diff - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x + diff - PacmanGame.SQUARE_SIZE/2) / PacmanGame.SQUARE_SIZE] != 'w'
-                                && PacmanGame.levelData[(c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) - diff - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x + diff - PacmanGame.SQUARE_SIZE/2) / PacmanGame.SQUARE_SIZE] != 'w') {
-                            possibleDirections.add(Character.Movement.LEFT);
-                        }
-                    }
-                    case RIGHT -> {
-
-                        //up check
-                        if (PacmanGame.levelData[(c.getSpawnPoint().y - PacmanGame.SCOREBAR_HEIGHT + diff - PacmanGame.SQUARE_SIZE/2) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x + diff) / PacmanGame.SQUARE_SIZE] != 'w'
-                                &&
-                                PacmanGame.levelData[(c.getSpawnPoint().y - PacmanGame.SCOREBAR_HEIGHT + diff - PacmanGame.SQUARE_SIZE/2)/ PacmanGame.SQUARE_SIZE]
-                                        [(c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) - diff) / PacmanGame.SQUARE_SIZE] != 'w') {
-                            possibleDirections.add(Character.Movement.UP);
-                        }
-
-                        //down check
-                        if (PacmanGame.levelData[(c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) + PacmanGame.SQUARE_SIZE/2 - PacmanGame.SCOREBAR_HEIGHT - diff) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x + diff) / PacmanGame.SQUARE_SIZE] != 'w'
-                                &&
-                                PacmanGame.levelData[(c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) + PacmanGame.SQUARE_SIZE/2 - PacmanGame.SCOREBAR_HEIGHT - diff) / PacmanGame.SQUARE_SIZE]
-                                        [(c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) - diff) / PacmanGame.SQUARE_SIZE] != 'w') {
-                            possibleDirections.add(Character.Movement.DOWN);
-                        }
-
-                        //right middle check
-                        if (PacmanGame.levelData[(c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) + PacmanGame.SQUARE_SIZE/2 - diff) / PacmanGame.SQUARE_SIZE] != 'w') {
-                            possibleDirections.add(Character.Movement.RIGHT);
-                        }
-                    }
-                    case LEFT -> {
-
-                        //up check
-                        if (PacmanGame.levelData[(c.getSpawnPoint().y - PacmanGame.SQUARE_SIZE/2 - PacmanGame.SCOREBAR_HEIGHT + diff) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x + diff) / PacmanGame.SQUARE_SIZE] != 'w'
-                                &&
-                                PacmanGame.levelData[(c.getSpawnPoint().y - PacmanGame.SQUARE_SIZE/2 - PacmanGame.SCOREBAR_HEIGHT + diff) / PacmanGame.SQUARE_SIZE]
-                                        [(c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) - diff) / PacmanGame.SQUARE_SIZE] != 'w') {
-                            possibleDirections.add(Character.Movement.UP);
-                        }
-
-                        //down check
-                        if (PacmanGame.levelData[(c.getSpawnPoint().y + PacmanGame.SQUARE_SIZE/2 + c.getCurrentSprite().getImage().getHeight(this) - PacmanGame.SCOREBAR_HEIGHT - diff) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x + diff) / PacmanGame.SQUARE_SIZE] != 'w'
-                                &&
-                                PacmanGame.levelData[(c.getSpawnPoint().y  +PacmanGame.SQUARE_SIZE/2 + c.getCurrentSprite().getImage().getHeight(this) - PacmanGame.SCOREBAR_HEIGHT - diff) / PacmanGame.SQUARE_SIZE]
-                                        [(c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) - diff) / PacmanGame.SQUARE_SIZE] != 'w') {
-                            possibleDirections.add(Character.Movement.DOWN);
-                        }
-
-                        //left middle check
-                        if (PacmanGame.levelData[(c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x + diff - PacmanGame.SQUARE_SIZE/2) / PacmanGame.SQUARE_SIZE] != 'w') {
-                            possibleDirections.add(Character.Movement.LEFT);
-                        }
-                    }
-
-                    case DOWN -> {
-
-                        //down middle check
-                        if (PacmanGame.levelData[(c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) + PacmanGame.SQUARE_SIZE/2 - PacmanGame.SCOREBAR_HEIGHT - diff) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE] != 'w') {
-                            possibleDirections.add(Character.Movement.DOWN);
-                        }
-
-                        //right check
-                        if (PacmanGame.levelData[(c.getSpawnPoint().y -
-                                PacmanGame.SCOREBAR_HEIGHT + diff) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) - diff) / PacmanGame.SQUARE_SIZE] != 'w'
-                                && PacmanGame.levelData[(c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) - diff -
-                                PacmanGame.SCOREBAR_HEIGHT + PacmanGame.SQUARE_SIZE/2) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) + PacmanGame.SQUARE_SIZE/2- diff) / PacmanGame.SQUARE_SIZE] != 'w') {
-                            possibleDirections.add(Character.Movement.RIGHT);
-                        }
-
-                        //left check
-                        if (PacmanGame.levelData[(c.getSpawnPoint().y - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x - PacmanGame.SQUARE_SIZE/2+ diff) / PacmanGame.SQUARE_SIZE] != 'w'
-                                && PacmanGame.levelData[(c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
-                                [(c.getSpawnPoint().x - PacmanGame.SQUARE_SIZE/2 + diff) / PacmanGame.SQUARE_SIZE] != 'w') {
-                            possibleDirections.add(Character.Movement.LEFT);
-                        }
-                    }
-                }
-                Random rgen = new Random();
-                if(possibleDirections.size()>1) {
-                    c.setCurrentMovement(possibleDirections.get(rgen.nextInt(possibleDirections.size())));
-                }
-            }
-        }
-    }*/
-
 
 
     private void determineEnemiesPoint() {
@@ -584,31 +445,17 @@ c.setSpawnPoint(determinePoint(c));
                     }
     OptionalDouble max = Arrays.stream(distance).max();
                     if (max.getAsDouble() == distance[0]) {
-                        /*if (c.getCurrentMovement() == Character.Movement.LEFT || c.getCurrentMovement() == Character.Movement.RIGHT) {
-                            c.getSpawnPoint().x -= (c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) / 2) % PacmanGame.SQUARE_SIZE -
-                                    c.getCurrentSprite().getImage().getWidth(this) / 2;
-                        }*/
                         c.setCurrentMovement(Character.Movement.UP);
                     } else if (max.getAsDouble() == distance[1]) {
-//                        if (c.getCurrentMovement() == Character.Movement.UP || c.getCurrentMovement() == Character.Movement.DOWN) {
-//                            c.getSpawnPoint().y -= (c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) / 2) % PacmanGame.SQUARE_SIZE - c.getCurrentSprite().getImage().getHeight(this) / 2;
-//                        }
                         c.setCurrentMovement(Character.Movement.LEFT);
                     } else if (max.getAsDouble() == distance[2]) {
-//                        if (c.getCurrentMovement() == Character.Movement.UP || c.getCurrentMovement() == Character.Movement.DOWN) {
-//                            c.getSpawnPoint().y -= (c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) / 2) % PacmanGame.SQUARE_SIZE - c.getCurrentSprite().getImage().getHeight(this) / 2;
-//                        }
                         c.setCurrentMovement(Character.Movement.RIGHT);
                     } else if (max.getAsDouble() == distance[3]) {
-//                        if (c.getCurrentMovement() == Character.Movement.LEFT || c.getCurrentMovement() == Character.Movement.RIGHT) {
-//                            c.getSpawnPoint().x -= (c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) / 2) % PacmanGame.SQUARE_SIZE -
-//                                    c.getCurrentSprite().getImage().getWidth(this) / 2;
-//                        }
                         c.setCurrentMovement(Character.Movement.DOWN);
                 }
 
             }catch (IndexOutOfBoundsException e){
-
+                    c.getSpawnPoint().y = PacmanGame.SQUARE_SIZE*14+PacmanGame.SCOREBAR_HEIGHT+2;
             }
         }
     }
@@ -616,14 +463,14 @@ c.setSpawnPoint(determinePoint(c));
 
     private boolean upIsClear(Character c) {
         Point toCompare = determinePoint(c, Character.Movement.UP);
-        if(toCompare.getY()==c.getSpawnPoint().getY() ) {
+        if(toCompare.getY()==c.getSpawnPoint().getY()) {
             return false;
         } else return true;
     }
 
     private boolean downIsClear(Character c) {
         Point toCompare = determinePoint(c, Character.Movement.DOWN);
-        if(toCompare.getY()==c.getSpawnPoint().getY() ) {
+        if(toCompare.getY()==c.getSpawnPoint().getY()) {
             return false;
         } else return true;
     }
@@ -637,7 +484,7 @@ c.setSpawnPoint(determinePoint(c));
 
     private boolean rightIsClear(Character c) {
         Point toCompare = determinePoint(c, Character.Movement.RIGHT);
-        if(toCompare.getX()==c.getSpawnPoint().getX() ) {
+        if(toCompare.getX()==c.getSpawnPoint().getX()) {
             return false;
         } else return true;
     }

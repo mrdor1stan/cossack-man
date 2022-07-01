@@ -27,7 +27,7 @@ public class Character{
         this.livesLeft = livesLeft;
         this.speed = speed;
         this.currentSprite = currentSprite;
-        this.spawnPoint = spawnPoint;
+        this.spawnPoint = new Point((int) spawnPoint.getX(), (int) spawnPoint.getY());
         this.width = width;
         this.height = height;
     }
