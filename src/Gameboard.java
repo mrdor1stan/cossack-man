@@ -67,33 +67,32 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     ArrayList<Character> characters;
 
-    Character[] level1Setup = new Character[]{
-            pacman, new Character(1, 5, new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
-            new Character(1, 5, new ImageIcon("src/images/chmonya1.png"), ghost2DefaultSpawn),
-            new Character(1, 5, new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn)
+    Character[][] levelSetup = new Character[][]{{
+            pacman, new Character(1, 2, new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
+            new Character(1, 2, new ImageIcon("src/images/chmonya1.png"), ghost2DefaultSpawn),
+            new Character(1, 2, new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn)
+    },
+            { pacman, new Character(1, 3, new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
+                    new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
+                    new Character(1, 3, new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn)
+            },
+            {
+                    pacman, new Character(1, 3, new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
+                    new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
+                    new Character(1, 3, new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn),
+                    new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost4DefaultSpawn),
+
+            },
+            {
+                    pacman, new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost1DefaultSpawn),
+                    new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
+                    new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost3DefaultSpawn),
+                    new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost4DefaultSpawn),
+
+            }
 
     };
 
-    Character[] level2Setup = new Character[]{
-            pacman, new Character(1, 3, new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
-            new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
-            new Character(1, 3, new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn)
-
-    };
-    Character[] level3Setup = new Character[]{
-            pacman, new Character(1, 3, new ImageIcon("src/images/chmonya1.png"), ghost1DefaultSpawn),
-            new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
-            new Character(1, 3, new ImageIcon("src/images/chmonya1.png"), ghost3DefaultSpawn),
-            new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost4DefaultSpawn),
-
-    };
-    Character[] level4Setup = new Character[]{
-            pacman, new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost1DefaultSpawn),
-            new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost2DefaultSpawn),
-            new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost3DefaultSpawn),
-            new Character(2, 3, new ImageIcon("src/images/brute1.png"), ghost4DefaultSpawn),
-
-    };
 
     ImageIcon dumpIcon = new ImageIcon("src/images/dumpling.png");
     Image dumpImage = dumpIcon.getImage();
@@ -166,25 +165,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     private void setUpLevel() {
         level++;
         levelWon = false;
-        switch (level) {
-            case 1 -> {
-                characters = new ArrayList<>();
-                Collections.addAll(characters, level1Setup);
-
-            }
-            case 2 -> {
-                characters = new ArrayList<>();
-                characters.addAll(Arrays.asList(level2Setup));
-            }
-            case 3 -> {
-                characters = new ArrayList<>();
-                characters.addAll(Arrays.asList(level3Setup));
-            }
-            case 4 -> {
-                characters = new ArrayList<>();
-                characters.addAll(Arrays.asList(level4Setup));
-            }
-        }
+        characters = new ArrayList<>();
+        Collections.addAll(characters, levelSetup[level]);
     }
 
     public void printMaze(Graphics2D g2d) {
@@ -616,28 +598,28 @@ c.setSpawnPoint(determinePoint(c));
 
     private boolean upIsClear(Character c) {
         Point toCompare = determinePoint(c, Character.Movement.UP);
-        if(toCompare.getY()==c.getSpawnPoint().getY() ) {
+        if(Math.abs(toCompare.getY()-c.getSpawnPoint().getY() ) <= c.speed/2) {
             return false;
         } else return true;
     }
 
     private boolean downIsClear(Character c) {
         Point toCompare = determinePoint(c, Character.Movement.DOWN);
-        if(toCompare.getY()==c.getSpawnPoint().getY() ) {
+        if(Math.abs(toCompare.getY()-c.getSpawnPoint().getY()) < c.speed/2) {
             return false;
         } else return true;
     }
 
     private boolean leftIsClear(Character c) {
         Point toCompare = determinePoint(c, Character.Movement.LEFT);
-        if(toCompare.getX()==c.getSpawnPoint().getX() ) {
+        if(Math.abs(toCompare.getX()-c.getSpawnPoint().getX() ) < c.speed/2) {
             return false;
         } else return true;
     }
 
     private boolean rightIsClear(Character c) {
         Point toCompare = determinePoint(c, Character.Movement.RIGHT);
-        if(toCompare.getX()==c.getSpawnPoint().getX() ) {
+        if(Math.abs(toCompare.getX()-c.getSpawnPoint().getX() ) < c.speed/2) {
             return false;
         } else return true;
     }
