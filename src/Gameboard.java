@@ -14,8 +14,9 @@ import java.util.*;
 
 public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
+    private static final int DEFAULT_TIMER = 120;
     int score = 0;
-    static int timer = 100;
+    static int timer = DEFAULT_TIMER;
     private static final int TIMER_DELAY = (int) (timer * 1.5) / 9;
     int level = 0;
     JLabel scoreShowcase;
@@ -44,7 +45,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                 pacman.livesLeft--;
                 if (pacman.livesLeft > 0) {
                     pacman.setSpawnPoint(pacmanDefaultSpawn);
-                    timer = 120;
+                    timer = DEFAULT_TIMER;
                     tm.start();
                     death = true;
                 } else {
@@ -165,6 +166,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     private void setUpLevel() {
         level++;
+        timer = DEFAULT_TIMER;
         levelWon = false;
         characters = new ArrayList<>();
         Collections.addAll(characters, levelSetup[level-1]);
