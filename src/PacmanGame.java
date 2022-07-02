@@ -1,6 +1,12 @@
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class PacmanGame {
     static String[] LEVEL_DATA = new String[]{
@@ -44,20 +50,52 @@ public class PacmanGame {
     public static final int LIVES_BAR_HEIGHT = 2*SQUARE_SIZE;
     public static final int WINDOW_HEIGHT = LEVEL_DATA.length*SQUARE_SIZE + SCOREBAR_HEIGHT+LIVES_BAR_HEIGHT;
     public static final int WINDOW_WIDTH = LEVEL_DATA[0].length()*SQUARE_SIZE;
-
     public static final int GAME_WIDTH = PacmanGame.WINDOW_WIDTH;
-    public static final int GAME_HEIGHT = PacmanGame.WINDOW_HEIGHT-PacmanGame.SCOREBAR_HEIGHT-PacmanGame.LIVES_BAR_HEIGHT;
     public static final int PACMAN_LIVES = 3;
+    private static final ImageIcon windowIcon = new ImageIcon("src/images/dumpling.png");
+
+    static JFrame gamefield;
+
+    static JPanel menu;
+    static JLabel introText = new JLabel("Press ENTER to begin");
+
+    static Gameboard board = new Gameboard(WINDOW_WIDTH, WINDOW_HEIGHT);
+
+//    static Action start = new startGame();
 
     public static void main(String[] args) {
         inspectLevelDataError();
-        JFrame gamefield = new JFrame("Cossack-Man"); //Pa-Cossack-Man?
+        gamefield = new JFrame("Cossack-Man");
         gamefield.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        gamefield.add(new Gameboard(WINDOW_WIDTH, WINDOW_HEIGHT));
+        introText.setFont(new Font("Monospaced", Font.BOLD, 24));
+        introText.setForeground(Color.WHITE);
+        introText.setHorizontalAlignment(SwingConstants.CENTER);
+        introText.setVerticalAlignment(SwingConstants.CENTER);
         gamefield.setSize(798, 1032);
+        final BufferedImage mainMenu;
+        try {
+            mainMenu = ImageIO.read(new File("src/images/title.png"));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        menu = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(mainMenu, 0, 0, null);
+            }
+        };
+        menu.add(introText, BorderLayout.CENTER);
+//        gamefield.add(menu);
+        gamefield.add(board);
         gamefield.setVisible(true);
         gamefield.setResizable(false);
         gamefield.setLocationRelativeTo(null);
+        gamefield.setIconImage(windowIcon.getImage());
+        gamefield.repaint();
+//        JRootPane rootPane = gamefield.getRootPane();
+//        rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ENTER"), "start");
+//        rootPane.getActionMap().put("start", start);
     }
 
     private static void inspectLevelDataError() {
@@ -71,4 +109,14 @@ public class PacmanGame {
             }
         }
     }
+
+//    private static class startGame extends AbstractAction {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            gamefield.remove(menu);
+//            gamefield.add(board);
+//            gamefield.repaint();
+//            gamefield.revalidate();
+//        }
+//    }
 }

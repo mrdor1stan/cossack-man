@@ -1,3 +1,4 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.*;
@@ -5,10 +6,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Random;
 import java.awt.geom.Point2D;
 import java.util.*;
 
@@ -16,7 +19,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     private static final int DEFAULT_TIMER = 120;
     int score = 0;
-    static int timer = DEFAULT_TIMER;
+    static int timer = 100;
     private static final int TIMER_DELAY = (int) (timer * 1.5) / 9;
     int level = 0;
     JLabel scoreShowcase;
@@ -45,11 +48,11 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                 pacman.livesLeft--;
                 if (pacman.livesLeft > 0) {
                     pacman.setSpawnPoint(pacmanDefaultSpawn);
-                    timer = DEFAULT_TIMER;
+                    timer = 120;
                     tm.start();
                     death = true;
                 } else {
-                    System.out.println("Ну їх в баню, тих москалів. Втомився за ними бігати.");
+                    loss();
                 }
                 try {
                     Thread.sleep(1000);
@@ -59,13 +62,112 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
             }
         }
     });
-    int pacmanSpeed = 5;
+
+    private void loss() {
+        lose=true;
+        PacmanGame.gamefield.getContentPane().removeAll();
+        final BufferedImage loseScreen;
+        try {
+            loseScreen = ImageIO.read(new File("src/images/lose.png"));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        JPanel youLose = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(loseScreen, 0, 0, null);
+            }
+        };
+        PacmanGame.gamefield.add(youLose);
+        PacmanGame.gamefield.repaint();
+        PacmanGame.gamefield.revalidate();
+
+        if(lose) {
+            PacmanGame.gamefield.addKeyListener(new KeyListener() {
+                @Override
+                public void keyTyped(KeyEvent e) {
+                }
+
+                @Override
+                public void keyPressed(KeyEvent e) {
+                }
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                        System.exit(0);
+                    }
+                    if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                        lose=false;
+                        reset();
+                    }
+                }
+            });
+        }
+        PacmanGame.gamefield.requestFocusInWindow();
+    }
+
+    private void victory() {
+        win=true;
+        PacmanGame.gamefield.getContentPane().removeAll();
+        final BufferedImage winScreen;
+        try {
+            winScreen = ImageIO.read(new File("src/images/win.png"));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        JPanel youWin = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(winScreen, 0, 0, null);
+            }
+        };
+        PacmanGame.gamefield.add(youWin);
+        PacmanGame.gamefield.revalidate();
+        PacmanGame.gamefield.repaint();
+        PacmanGame.gamefield.addKeyListener(new KeyListener() {
+                @Override
+                public void keyPressed(KeyEvent e) {
+                }
+
+                @Override
+                public void keyTyped(KeyEvent e) {
+                }
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    if(win) {
+                        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                            System.exit(0);
+
+                        }
+                        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                            win = false;
+                            reset();
+                        }
+                    }
+                }
+            });
+        PacmanGame.gamefield.requestFocusInWindow();
+    }
+
+    public void reset() {
+        PacmanGame.gamefield.getContentPane().removeAll();
+        PacmanGame.gamefield.removeKeyListener(this);
+        PacmanGame.gamefield.add(new Gameboard(PacmanGame.WINDOW_WIDTH, PacmanGame.WINDOW_HEIGHT));
+        pacman.livesLeft=3;
+        timer=100;
+        dumplingsEaten=0;
+        PacmanGame.gamefield.repaint();
+    }
+
+    int pacmanSpeed = 6;
     int dumplingsEaten = 0;
 
     Character pacman = new Character(PacmanGame.PACMAN_LIVES, pacmanSpeed, new ImageIcon("src/images/cossack1.png"), pacmanDefaultSpawn, new ImageIcon("src/images/cossack1.png").getImage().getWidth(this), new ImageIcon("src/images/cossack1.png").getImage().getHeight(this));
     //X selects String (vertical movement), Y selects char (horizontal movement)
-
-    Rectangle wall;
 
     ArrayList<Character> characters;
 
@@ -95,7 +197,6 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     };
 
-
     ImageIcon dumpIcon = new ImageIcon("src/images/dumpling.png");
     Image dumpImage = dumpIcon.getImage();
     int dotDistance = (int) (PacmanGame.SQUARE_SIZE * 0.75 / 2d);
@@ -120,7 +221,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     }
 
     boolean levelWon = true;
-    boolean death;
+    boolean death, win, lose;
 
     private void doDrawing(Graphics g) {
 
@@ -165,13 +266,17 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     }
 
     private void setUpLevel() {
-        level++;
-        timer = DEFAULT_TIMER;
-        levelWon = false;
-        characters = new ArrayList<>();
-        Collections.addAll(characters, levelSetup[level-1]);
+        try {
+            level++;
+            timer = DEFAULT_TIMER;
+            levelWon = false;
+            characters = new ArrayList<>();
+            Collections.addAll(characters, levelSetup[level - 1]);
+        }
+        catch (ArrayIndexOutOfBoundsException exception) {
+            victory();
+        }
     }
-
     public void printMaze(Graphics2D g2d) {
 //        g2d.fillRect(120,0,5,720);
 //        g2d.fillRect(0,120,560,5);
@@ -277,8 +382,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         moveCharacters();
-        checkDumplingsCollisions();
         checkEnemiesCollisions();
+        checkDumplingsCollisions();
         determineEnemiesPoint();
         repaint();
     }
@@ -292,8 +397,16 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
             int charX = (c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE;
             int charY = (c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE;
 
-            if(pacX==charX && pacY==charY){
+            Rectangle pacmanCollision = new Rectangle(pacX, pacY, pacman.getCurrentSprite().getImage().getWidth(this)/PacmanGame.SQUARE_SIZE, pacman.getCurrentSprite().getImage().getHeight(this)/PacmanGame.SQUARE_SIZE);
+            Rectangle charCollision = new Rectangle(charX, charY, c.getCurrentSprite().getImage().getWidth(this)/PacmanGame.SQUARE_SIZE, c.getCurrentSprite().getImage().getHeight(this)/PacmanGame.SQUARE_SIZE);
+
+            if(pacmanCollision.intersects(charCollision)){
                 enemyEaten(c);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 }
@@ -305,7 +418,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     private void enemyEaten(Character toDelete) {
         if(toDelete.death() == 0) {
-            ArrayList<Character> newCharacters = new ArrayList<Character>();
+            ArrayList<Character> newCharacters = new ArrayList<>();
 
             for (Character c : characters) {
                 if (c != toDelete)
@@ -340,7 +453,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     private void moveCharacters() {
         for (Character c : characters) {
-c.setSpawnPoint(determinePoint(c));
+            c.setSpawnPoint(determinePoint(c));
 
         }
 
@@ -390,7 +503,7 @@ c.setSpawnPoint(determinePoint(c));
                 }
             } catch (IndexOutOfBoundsException e) {
                 if (spawnPoint.getX() <= -c.getCurrentSprite().getImage().getWidth(this))
-                    spawnPoint.x = PacmanGame.WINDOW_WIDTH - c.speed;
+                    spawnPoint.x = PacmanGame.levelData[0].length * PacmanGame.SQUARE_SIZE - c.speed;
                 else if (spawnPoint.getX() >= PacmanGame.WINDOW_WIDTH)
                     spawnPoint.x = -c.getCurrentSprite().getImage().getWidth(this) + c.speed;
                 spawnPoint.y = PacmanGame.SQUARE_SIZE*14+PacmanGame.SCOREBAR_HEIGHT+diff;
@@ -447,12 +560,26 @@ c.setSpawnPoint(determinePoint(c));
                     }
     OptionalDouble max = Arrays.stream(distance).max();
                     if (max.getAsDouble() == distance[0]) {
+                        /*if (c.getCurrentMovement() == Character.Movement.LEFT || c.getCurrentMovement() == Character.Movement.RIGHT) {
+                            c.getSpawnPoint().x -= (c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) / 2) % PacmanGame.SQUARE_SIZE -
+                                    c.getCurrentSprite().getImage().getWidth(this) / 2;
+                        }*/
                         c.setCurrentMovement(Character.Movement.UP);
                     } else if (max.getAsDouble() == distance[1]) {
+//                        if (c.getCurrentMovement() == Character.Movement.UP || c.getCurrentMovement() == Character.Movement.DOWN) {
+//                            c.getSpawnPoint().y -= (c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) / 2) % PacmanGame.SQUARE_SIZE - c.getCurrentSprite().getImage().getHeight(this) / 2;
+//                        }
                         c.setCurrentMovement(Character.Movement.LEFT);
                     } else if (max.getAsDouble() == distance[2]) {
+//                        if (c.getCurrentMovement() == Character.Movement.UP || c.getCurrentMovement() == Character.Movement.DOWN) {
+//                            c.getSpawnPoint().y -= (c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) / 2) % PacmanGame.SQUARE_SIZE - c.getCurrentSprite().getImage().getHeight(this) / 2;
+//                        }
                         c.setCurrentMovement(Character.Movement.RIGHT);
                     } else if (max.getAsDouble() == distance[3]) {
+//                        if (c.getCurrentMovement() == Character.Movement.LEFT || c.getCurrentMovement() == Character.Movement.RIGHT) {
+//                            c.getSpawnPoint().x -= (c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) / 2) % PacmanGame.SQUARE_SIZE -
+//                                    c.getCurrentSprite().getImage().getWidth(this) / 2;
+//                        }
                         c.setCurrentMovement(Character.Movement.DOWN);
                 }
 
@@ -465,30 +592,22 @@ c.setSpawnPoint(determinePoint(c));
 
     private boolean upIsClear(Character c) {
         Point toCompare = determinePoint(c, Character.Movement.UP);
-        if(toCompare.getY()==c.getSpawnPoint().getY()) {
-            return false;
-        } else return true;
+        return toCompare.getY() != c.getSpawnPoint().getY();
     }
 
     private boolean downIsClear(Character c) {
         Point toCompare = determinePoint(c, Character.Movement.DOWN);
-        if(toCompare.getY()==c.getSpawnPoint().getY()) {
-            return false;
-        } else return true;
+        return toCompare.getY() != c.getSpawnPoint().getY();
     }
 
     private boolean leftIsClear(Character c) {
         Point toCompare = determinePoint(c, Character.Movement.LEFT);
-        if(toCompare.getX()==c.getSpawnPoint().getX() ) {
-            return false;
-        } else return true;
+        return toCompare.getX() != c.getSpawnPoint().getX();
     }
 
     private boolean rightIsClear(Character c) {
         Point toCompare = determinePoint(c, Character.Movement.RIGHT);
-        if(toCompare.getX()==c.getSpawnPoint().getX()) {
-            return false;
-        } else return true;
+        return toCompare.getX() != c.getSpawnPoint().getX();
     }
 }
 
