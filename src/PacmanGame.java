@@ -98,6 +98,15 @@ public class PacmanGame {
 //        rootPane.getActionMap().put("start", start);
     }
 
+   public static void updateDots(){
+       int length = LEVEL_DATA[0].length();
+        for(int i=0;i< LEVEL_DATA.length;i++){
+            for(int j=0;j<length;j++){
+                levelData[i][j]=LEVEL_DATA[i].charAt(j);
+            }
+        }
+    }
+
     private static void inspectLevelDataError() {
         int length = LEVEL_DATA[0].length();
         for(int i=1;i< LEVEL_DATA.length;i++){
@@ -109,14 +118,4 @@ public class PacmanGame {
             }
         }
     }
-
-//    private static class startGame extends AbstractAction {
-//        @Override
-//        public void actionPerformed(ActionEvent e) {
-//            gamefield.remove(menu);
-//            gamefield.add(board);
-//            gamefield.repaint();
-//            gamefield.revalidate();
-//        }
-//    }
 }

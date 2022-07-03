@@ -19,7 +19,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     private static final int DEFAULT_TIMER = 120;
     int score = 0;
-    static int timer = 100;
+    static int timer = DEFAULT_TIMER;
     private static final int TIMER_DELAY = (int) (timer * 1.5) / 9;
     int level = 0;
     JLabel scoreShowcase;
@@ -48,7 +48,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                 pacman.livesLeft--;
                 if (pacman.livesLeft > 0) {
                     pacman.setSpawnPoint(pacmanDefaultSpawn);
-                    timer = 120;
+                    timer = DEFAULT_TIMER;
                     tm.start();
                     death = true;
                 } else {
@@ -169,6 +169,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     Character pacman = new Character(PacmanGame.PACMAN_LIVES, pacmanSpeed, new ImageIcon("src/images/cossack1.png"), pacmanDefaultSpawn, new ImageIcon("src/images/cossack1.png").getImage().getWidth(this), new ImageIcon("src/images/cossack1.png").getImage().getHeight(this));
     //X selects String (vertical movement), Y selects char (horizontal movement)
 
+    Rectangle wall;
+
     ArrayList<Character> characters;
 
     Character[][] levelSetup = new Character[][]{{
@@ -196,6 +198,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
             }
 
     };
+
 
     ImageIcon dumpIcon = new ImageIcon("src/images/dumpling.png");
     Image dumpImage = dumpIcon.getImage();
@@ -266,17 +269,24 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     }
 
     private void setUpLevel() {
-        try {
+        if(level<levelSetup.length) {
+            PacmanGame.updateDots();
+            pacman.setSpawnPoint(pacmanDefaultSpawn);
             level++;
             timer = DEFAULT_TIMER;
             levelWon = false;
             characters = new ArrayList<>();
             Collections.addAll(characters, levelSetup[level - 1]);
-        }
-        catch (ArrayIndexOutOfBoundsException exception) {
-            victory();
+        } else {
+            gameWon();
         }
     }
+
+    private void gameWon() {
+        tm.stop();
+        victory();
+    }
+
     public void printMaze(Graphics2D g2d) {
 //        g2d.fillRect(120,0,5,720);
 //        g2d.fillRect(0,120,560,5);
@@ -397,10 +407,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
             int charX = (c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE;
             int charY = (c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE;
 
-            Rectangle pacmanCollision = new Rectangle(pacX, pacY, pacman.getCurrentSprite().getImage().getWidth(this)/PacmanGame.SQUARE_SIZE, pacman.getCurrentSprite().getImage().getHeight(this)/PacmanGame.SQUARE_SIZE);
-            Rectangle charCollision = new Rectangle(charX, charY, c.getCurrentSprite().getImage().getWidth(this)/PacmanGame.SQUARE_SIZE, c.getCurrentSprite().getImage().getHeight(this)/PacmanGame.SQUARE_SIZE);
-
-            if(pacmanCollision.intersects(charCollision)){
+            if(pacX==charX && pacY==charY){
                 enemyEaten(c);
                 try {
                     Thread.sleep(100);
@@ -418,7 +425,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     private void enemyEaten(Character toDelete) {
         if(toDelete.death() == 0) {
-            ArrayList<Character> newCharacters = new ArrayList<>();
+            ArrayList<Character> newCharacters = new ArrayList<Character>();
 
             for (Character c : characters) {
                 if (c != toDelete)
@@ -503,7 +510,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                 }
             } catch (IndexOutOfBoundsException e) {
                 if (spawnPoint.getX() <= -c.getCurrentSprite().getImage().getWidth(this))
-                    spawnPoint.x = PacmanGame.levelData[0].length * PacmanGame.SQUARE_SIZE - c.speed;
+                    spawnPoint.x = PacmanGame.WINDOW_WIDTH - c.speed;
                 else if (spawnPoint.getX() >= PacmanGame.WINDOW_WIDTH)
                     spawnPoint.x = -c.getCurrentSprite().getImage().getWidth(this) + c.speed;
                 spawnPoint.y = PacmanGame.SQUARE_SIZE*14+PacmanGame.SCOREBAR_HEIGHT+diff;
@@ -560,26 +567,12 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                     }
     OptionalDouble max = Arrays.stream(distance).max();
                     if (max.getAsDouble() == distance[0]) {
-                        /*if (c.getCurrentMovement() == Character.Movement.LEFT || c.getCurrentMovement() == Character.Movement.RIGHT) {
-                            c.getSpawnPoint().x -= (c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) / 2) % PacmanGame.SQUARE_SIZE -
-                                    c.getCurrentSprite().getImage().getWidth(this) / 2;
-                        }*/
                         c.setCurrentMovement(Character.Movement.UP);
                     } else if (max.getAsDouble() == distance[1]) {
-//                        if (c.getCurrentMovement() == Character.Movement.UP || c.getCurrentMovement() == Character.Movement.DOWN) {
-//                            c.getSpawnPoint().y -= (c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) / 2) % PacmanGame.SQUARE_SIZE - c.getCurrentSprite().getImage().getHeight(this) / 2;
-//                        }
                         c.setCurrentMovement(Character.Movement.LEFT);
                     } else if (max.getAsDouble() == distance[2]) {
-//                        if (c.getCurrentMovement() == Character.Movement.UP || c.getCurrentMovement() == Character.Movement.DOWN) {
-//                            c.getSpawnPoint().y -= (c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) / 2) % PacmanGame.SQUARE_SIZE - c.getCurrentSprite().getImage().getHeight(this) / 2;
-//                        }
                         c.setCurrentMovement(Character.Movement.RIGHT);
                     } else if (max.getAsDouble() == distance[3]) {
-//                        if (c.getCurrentMovement() == Character.Movement.LEFT || c.getCurrentMovement() == Character.Movement.RIGHT) {
-//                            c.getSpawnPoint().x -= (c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) / 2) % PacmanGame.SQUARE_SIZE -
-//                                    c.getCurrentSprite().getImage().getWidth(this) / 2;
-//                        }
                         c.setCurrentMovement(Character.Movement.DOWN);
                 }
 
