@@ -25,6 +25,27 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     JLabel scoreShowcase;
     JLabel timeShowcase = new JLabel();
 
+    BufferedImage pause;
+    final BufferedImage intro;
+    {
+        try {
+            pause = ImageIO.read(new File("src/images/pause.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    {
+        try {
+            intro = ImageIO.read(new File("src/images/intro.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    JLabel pauseScreen = new JLabel(new ImageIcon(pause));
+
+    JLabel introScreen = new JLabel(new ImageIcon(intro));
+
     int countdown;
     private final Point pacmanDefaultSpawn = new Point(PacmanGame.GAME_WIDTH / 2 - 16, PacmanGame.SCOREBAR_HEIGHT + 12 * PacmanGame.SQUARE_SIZE);
     private final Point ghost1DefaultSpawn = new Point(PacmanGame.SQUARE_SIZE, PacmanGame.SCOREBAR_HEIGHT + PacmanGame.SQUARE_SIZE);
@@ -64,7 +85,6 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     });
 
     private void loss() {
-        lose=true;
         PacmanGame.gamefield.getContentPane().removeAll();
         final BufferedImage loseScreen;
         try {
@@ -83,7 +103,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
         PacmanGame.gamefield.repaint();
         PacmanGame.gamefield.revalidate();
 
-        if(lose) {
+
             PacmanGame.gamefield.addKeyListener(new KeyListener() {
                 @Override
                 public void keyTyped(KeyEvent e) {
@@ -99,17 +119,14 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                         System.exit(0);
                     }
                     if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                        lose=false;
                         reset();
                     }
                 }
             });
-        }
         PacmanGame.gamefield.requestFocusInWindow();
     }
 
     private void victory() {
-        win=true;
         PacmanGame.gamefield.getContentPane().removeAll();
         final BufferedImage winScreen;
         try {
@@ -138,15 +155,11 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
                 @Override
                 public void keyReleased(KeyEvent e) {
-                    if(win) {
-                        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                            System.exit(0);
-
-                        }
-                        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                            win = false;
-                            reset();
-                        }
+                    if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                        System.exit(0);
+                    }
+                    if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                        reset();
                     }
                 }
             });
@@ -154,13 +167,19 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     }
 
     public void reset() {
+        tm.stop();
+        gameReset=true;
         PacmanGame.gamefield.getContentPane().removeAll();
-        PacmanGame.gamefield.removeKeyListener(this);
-        PacmanGame.gamefield.add(new Gameboard(PacmanGame.WINDOW_WIDTH, PacmanGame.WINDOW_HEIGHT));
-        pacman.livesLeft=3;
-        timer=100;
+        //PacmanGame.gamefield.removeKeyListener(this);
+        PacmanGame.board = new Gameboard(PacmanGame.WINDOW_WIDTH, PacmanGame.WINDOW_HEIGHT);
+        PacmanGame.gamefield.add(PacmanGame.board);
+        pacman.livesLeft=PacmanGame.PACMAN_LIVES;
+        timer=DEFAULT_TIMER;
         dumplingsEaten=0;
+        PacmanGame.gamefield.revalidate();
         PacmanGame.gamefield.repaint();
+        PacmanGame.board.revalidate();
+        PacmanGame.board.requestFocusInWindow();
     }
 
     int pacmanSpeed = 6;
@@ -168,8 +187,6 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     Character pacman = new Character(PacmanGame.PACMAN_LIVES, pacmanSpeed, new ImageIcon("src/images/cossack1.png"), pacmanDefaultSpawn, new ImageIcon("src/images/cossack1.png").getImage().getWidth(this), new ImageIcon("src/images/cossack1.png").getImage().getHeight(this));
     //X selects String (vertical movement), Y selects char (horizontal movement)
-
-    Rectangle wall;
 
     ArrayList<Character> characters;
 
@@ -224,15 +241,24 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     }
 
     boolean levelWon = true;
-    boolean death, win, lose;
+    boolean death;
+    static boolean gameReset=false;
+
+    boolean started=false;
 
     private void doDrawing(Graphics g) {
+
+        if(!started) {
+            PacmanGame.board.add(introScreen, BorderLayout.NORTH);
+            PacmanGame.board.revalidate();
+            PacmanGame.board.repaint();
+        }
 
         if (levelWon) {
             setUpLevel();
         }
         Graphics2D g2d = (Graphics2D) g;
-        g2d.drawImage(bg.getImage(), 0, 0, this);
+        g2d.drawImage(bg, 0, 0, this);
 
         printMaze(g2d);
         drawHunger(g2d);
@@ -251,7 +277,19 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     }
 
-    ImageIcon bg = new ImageIcon("src/images/gamemap.png");
+//    ImageIcon bg = new ImageIcon("src/images/gamemap.png");
+
+    BufferedImage bg;
+
+    {
+        try {
+            bg = ImageIO.read(new File("src/images/gamemap.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     ImageIcon heartIcon = new ImageIcon("src/images/cossackHeartFull.png");
     ImageIcon brokenHeartIcon = new ImageIcon("src/images/cossackHeartEmpty.png");
 
@@ -342,11 +380,19 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     public void keyTyped(KeyEvent e) {
     }
 
+    boolean paused=false;
+
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_P) {
-            if (tm.isRunning())
+            if (tm.isRunning()) {
+                PacmanGame.board.setLayout(new BorderLayout());
+                PacmanGame.board.add(pauseScreen, BorderLayout.CENTER);
+                PacmanGame.board.revalidate();
+                PacmanGame.board.repaint();
                 tm.stop();
+                paused=true;
+            }
         }
         if (e.getKeyCode() == KeyEvent.VK_UP) {
             if (pacman.getCurrentMovement() != Character.Movement.UP) {
@@ -386,6 +432,14 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
             tm.start();
+            if(paused) {
+                PacmanGame.board.remove(pauseScreen);
+                paused=false;
+            }
+            if(!started) {
+                PacmanGame.board.remove(introScreen);
+                started=true;
+            }
         }
     }
 
@@ -425,7 +479,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     private void enemyEaten(Character toDelete) {
         if(toDelete.death() == 0) {
-            ArrayList<Character> newCharacters = new ArrayList<Character>();
+            ArrayList<Character> newCharacters = new ArrayList<>();
 
             for (Character c : characters) {
                 if (c != toDelete)

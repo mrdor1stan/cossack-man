@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +59,7 @@ public class PacmanGame {
     static JFrame gamefield;
 
     static JPanel menu;
-    static JLabel introText = new JLabel("Press ENTER to begin");
+    static JLabel introText = new JLabel("Press SPACE to begin");
 
     static Gameboard board = new Gameboard(WINDOW_WIDTH, WINDOW_HEIGHT);
 
@@ -67,35 +69,54 @@ public class PacmanGame {
         inspectLevelDataError();
         gamefield = new JFrame("Cossack-Man");
         gamefield.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        introText.setFont(new Font("Monospaced", Font.BOLD, 24));
-        introText.setForeground(Color.WHITE);
-        introText.setHorizontalAlignment(SwingConstants.CENTER);
-        introText.setVerticalAlignment(SwingConstants.CENTER);
         gamefield.setSize(798, 1032);
-        final BufferedImage mainMenu;
-        try {
-            mainMenu = ImageIO.read(new File("src/images/title.png"));
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-        menu = new JPanel(new BorderLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.drawImage(mainMenu, 0, 0, null);
-            }
-        };
-        menu.add(introText, BorderLayout.CENTER);
-//        gamefield.add(menu);
-        gamefield.add(board);
         gamefield.setVisible(true);
         gamefield.setResizable(false);
         gamefield.setLocationRelativeTo(null);
         gamefield.setIconImage(windowIcon.getImage());
-        gamefield.repaint();
-//        JRootPane rootPane = gamefield.getRootPane();
-//        rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ENTER"), "start");
-//        rootPane.getActionMap().put("start", start);
+        introText.setFont(new Font("Monospaced", Font.BOLD, 24));
+        introText.setForeground(Color.WHITE);
+        introText.setHorizontalAlignment(SwingConstants.CENTER);
+        introText.setVerticalAlignment(SwingConstants.CENTER);
+
+        if(!Gameboard.gameReset) {
+            final BufferedImage mainMenu;
+            try {
+                mainMenu = ImageIO.read(new File("src/images/title.png"));
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            menu = new JPanel(new BorderLayout()) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    g.drawImage(mainMenu, 0, 0, null);
+                }
+            };
+            menu.add(introText, BorderLayout.CENTER);
+            gamefield.add(menu);
+            gamefield.revalidate();
+            gamefield.repaint();
+            gamefield.addKeyListener(new KeyListener() {
+                @Override
+                public void keyTyped(KeyEvent e) {
+                }
+
+                @Override
+                public void keyPressed(KeyEvent e) {
+                }
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+                        gamefield.remove(menu);
+                        gamefield.add(board);
+                        gamefield.repaint();
+                        board.requestFocusInWindow();
+                    }
+                }
+            });
+        }
     }
 
    public static void updateDots(){
