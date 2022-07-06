@@ -71,6 +71,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     });
 
     private void loss() {
+        lose=true;
         PacmanGame.gameloop.stop();
         {
             try {
@@ -153,6 +154,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     }
 
     private void victory() {
+        win=true;
         PacmanGame.gameloop.stop();
         {
             try {
@@ -237,6 +239,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
         clip.stop();
         tm.stop();
         gameReset=true;
+        win=false;
+        lose=false;
         PacmanGame.gamefield.getContentPane().removeAll();
         //PacmanGame.gamefield.removeKeyListener(this);
         PacmanGame.board = new Gameboard(PacmanGame.WINDOW_WIDTH, PacmanGame.WINDOW_HEIGHT);
@@ -345,6 +349,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     boolean levelWon = true;
     boolean death, enemyHit;
     static boolean gameReset=false;
+
+    static boolean win, lose;
 
     boolean started=false;
 

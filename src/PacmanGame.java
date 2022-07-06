@@ -129,38 +129,40 @@ public class PacmanGame {
 
                 @Override
                 public void keyReleased(KeyEvent e) {
-                    if(e.getKeyCode() == KeyEvent.VK_SPACE) {
-                        {
-                            try {
-                                menuMusic.stop();
-                                audioIn = AudioSystem.getAudioInputStream(new File("src/audio/start.wav"));
-                                clip = AudioSystem.getClip();
-                                clip.open(audioIn);
-                                FloatControl audioControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                                audioControl.setValue(-25.0f);
-                                clip.start();
-                                audioIn = AudioSystem.getAudioInputStream(new File("src/audio/gameloop.wav"));
-                                gameloop = AudioSystem.getClip();
-                                gameloop.open(audioIn);
-                                audioControl = (FloatControl) gameloop.getControl(FloatControl.Type.MASTER_GAIN);
-                                audioControl.setValue(-25.0f);
-                                gameloop.start();
-                                gameloop.loop(Clip.LOOP_CONTINUOUSLY);
-                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
-                                throw new RuntimeException(ex);
+                    if (!Gameboard.win && !Gameboard.lose) {
+                        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                            {
+                                try {
+                                    menuMusic.stop();
+                                    audioIn = AudioSystem.getAudioInputStream(new File("src/audio/start.wav"));
+                                    clip = AudioSystem.getClip();
+                                    clip.open(audioIn);
+                                    FloatControl audioControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                                    audioControl.setValue(-25.0f);
+                                    clip.start();
+                                    audioIn = AudioSystem.getAudioInputStream(new File("src/audio/gameloop.wav"));
+                                    gameloop = AudioSystem.getClip();
+                                    gameloop.open(audioIn);
+                                    audioControl = (FloatControl) gameloop.getControl(FloatControl.Type.MASTER_GAIN);
+                                    audioControl.setValue(-25.0f);
+                                    gameloop.start();
+                                    gameloop.loop(Clip.LOOP_CONTINUOUSLY);
+                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
+                            gamefield.remove(menu);
+                            board.setLayout(new BorderLayout());
+                            scoreText.setVerticalAlignment(SwingConstants.TOP);
+                            scoreText.setHorizontalAlignment(SwingConstants.RIGHT);
+                            board.add(scoreText);
+                            levelText.setVerticalAlignment(SwingConstants.BOTTOM);
+                            board.add(levelText, BorderLayout.LINE_END);
+                            gamefield.add(board);
+                            gamefield.revalidate();
+                            gamefield.repaint();
+                            board.requestFocusInWindow();
                         }
-                        gamefield.remove(menu);
-                        board.setLayout(new BorderLayout());
-                        scoreText.setVerticalAlignment(SwingConstants.TOP);
-                        scoreText.setHorizontalAlignment(SwingConstants.RIGHT);
-                        board.add(scoreText);
-                        levelText.setVerticalAlignment(SwingConstants.BOTTOM);
-                        board.add(levelText, BorderLayout.LINE_END);
-                        gamefield.add(board);
-                        gamefield.revalidate();
-                        gamefield.repaint();
-                        board.requestFocusInWindow();
                     }
                 }
             });
