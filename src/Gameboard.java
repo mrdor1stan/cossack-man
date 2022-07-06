@@ -126,7 +126,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                                 select.open(audioIn);
                                 FloatControl audioControl = (FloatControl) select.getControl(FloatControl.Type.MASTER_GAIN);
                                 audioControl.setValue(-25.0f);
-                                select.start();
+                                if(!select.isRunning())
+                                    select.start();
                             } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
                                 throw new RuntimeException(ex);
                             }
@@ -141,7 +142,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                                 select.open(audioIn);
                                 FloatControl audioControl = (FloatControl) select.getControl(FloatControl.Type.MASTER_GAIN);
                                 audioControl.setValue(-25.0f);
-                                select.start();
+                                if(!select.isRunning())
+                                    select.start();
                             } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
                                 throw new RuntimeException(ex);
                             }
@@ -200,32 +202,38 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                 @Override
                 public void keyReleased(KeyEvent e) {
                     if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                        {
-                            try {
-                                audioIn = AudioSystem.getAudioInputStream(new File("src/audio/start.wav"));
-                                select = AudioSystem.getClip();
-                                select.open(audioIn);
-                                FloatControl audioControl = (FloatControl) select.getControl(FloatControl.Type.MASTER_GAIN);
-                                audioControl.setValue(-25.0f);
-                                select.start();
-                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
-                                throw new RuntimeException(ex);
+                        if(!clip.isRunning()) {
+                            {
+                                try {
+                                    audioIn = AudioSystem.getAudioInputStream(new File("src/audio/start.wav"));
+                                    select = AudioSystem.getClip();
+                                    select.open(audioIn);
+                                    FloatControl audioControl = (FloatControl) select.getControl(FloatControl.Type.MASTER_GAIN);
+                                    audioControl.setValue(-25.0f);
+                                    if(!select.isRunning())
+                                        select.start();
+                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                         }
                         System.exit(0);
                     }
                     if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                        {
-                            try {
-                                clip.stop();
-                                audioIn = AudioSystem.getAudioInputStream(new File("src/audio/start.wav"));
-                                select = AudioSystem.getClip();
-                                select.open(audioIn);
-                                FloatControl audioControl = (FloatControl) select.getControl(FloatControl.Type.MASTER_GAIN);
-                                audioControl.setValue(-25.0f);
-                                select.start();
-                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
-                                throw new RuntimeException(ex);
+                        if (!clip.isRunning()) {
+                            {
+                                try {
+                                    clip.stop();
+                                    audioIn = AudioSystem.getAudioInputStream(new File("src/audio/start.wav"));
+                                    select = AudioSystem.getClip();
+                                    select.open(audioIn);
+                                    FloatControl audioControl = (FloatControl) select.getControl(FloatControl.Type.MASTER_GAIN);
+                                    audioControl.setValue(-25.0f);
+                                    if(!select.isRunning())
+                                        select.start();
+                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                         }
                         reset();
@@ -238,17 +246,17 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     public void reset() {
         clip.stop();
         tm.stop();
-        gameReset=true;
-        win=false;
-        lose=false;
+        gameReset = true;
+        win = false;
+        lose = false;
         PacmanGame.gamefield.getContentPane().removeAll();
         //PacmanGame.gamefield.removeKeyListener(this);
         PacmanGame.board = new Gameboard(PacmanGame.WINDOW_WIDTH, PacmanGame.WINDOW_HEIGHT);
         PacmanGame.gamefield.add(PacmanGame.board);
-        pacman.livesLeft=PacmanGame.PACMAN_LIVES;
-        timer=DEFAULT_TIMER;
-        dumplingsEaten=0;
-        score=0;
+        pacman.livesLeft = PacmanGame.PACMAN_LIVES;
+        timer = DEFAULT_TIMER;
+        dumplingsEaten = 0;
+        score = 0;
         PacmanGame.board.setLayout(new BorderLayout());
         PacmanGame.scoreText.setForeground(Color.WHITE);
         PacmanGame.scoreText.setVerticalAlignment(SwingConstants.TOP);
@@ -256,23 +264,25 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
         PacmanGame.board.add(PacmanGame.scoreText);
         PacmanGame.levelText.setVerticalAlignment(SwingConstants.BOTTOM);
         PacmanGame.board.add(PacmanGame.levelText, BorderLayout.LINE_END);
-        PacmanGame.levelText.setText("Рівень "+level);
-        PacmanGame.scoreText.setText("Очки: "+score+"pts");
+        PacmanGame.levelText.setText("Рівень " + level);
+        PacmanGame.scoreText.setText("Очки: " + score + "pts");
         PacmanGame.gamefield.revalidate();
         PacmanGame.gamefield.repaint();
         PacmanGame.board.revalidate();
         PacmanGame.board.requestFocusInWindow();
-        {
-            try {
-                audioIn = AudioSystem.getAudioInputStream(new File("src/audio/gameloop.wav"));
-                PacmanGame.gameloop = AudioSystem.getClip();
-                PacmanGame.gameloop.open(audioIn);
-                FloatControl audioControl = (FloatControl) PacmanGame.gameloop.getControl(FloatControl.Type.MASTER_GAIN);
-                audioControl.setValue(-25.0f);
-                PacmanGame.gameloop.start();
-                PacmanGame.gameloop.loop(Clip.LOOP_CONTINUOUSLY);
-            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
-                throw new RuntimeException(ex);
+        if (!PacmanGame.gameloop.isRunning()) {
+            {
+                try {
+                    audioIn = AudioSystem.getAudioInputStream(new File("src/audio/gameloop.wav"));
+                    PacmanGame.gameloop = AudioSystem.getClip();
+                    PacmanGame.gameloop.open(audioIn);
+                    FloatControl audioControl = (FloatControl) PacmanGame.gameloop.getControl(FloatControl.Type.MASTER_GAIN);
+                    audioControl.setValue(-25.0f);
+                    PacmanGame.gameloop.start();
+                    PacmanGame.gameloop.loop(Clip.LOOP_CONTINUOUSLY);
+                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         }
     }
@@ -655,7 +665,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
             clip.open(audioIn);
             FloatControl audioControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
             audioControl.setValue(-15.0f);
-            clip.start();
+            if(!clip.isRunning())
+                clip.start();
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
             throw new RuntimeException(ex);
         }

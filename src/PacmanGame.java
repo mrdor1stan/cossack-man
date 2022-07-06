@@ -53,7 +53,7 @@ public class PacmanGame {
     public static final int WINDOW_HEIGHT = LEVEL_DATA.length*SQUARE_SIZE + SCOREBAR_HEIGHT+LIVES_BAR_HEIGHT;
     public static final int WINDOW_WIDTH = LEVEL_DATA[0].length()*SQUARE_SIZE;
     public static final int GAME_WIDTH = PacmanGame.WINDOW_WIDTH;
-    public static final int PACMAN_LIVES = 3;
+    public static final int PACMAN_LIVES = 1;
     private static final ImageIcon windowIcon = new ImageIcon("src/images/dumpling.png");
 
     static JFrame gamefield;
