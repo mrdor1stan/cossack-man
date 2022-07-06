@@ -1,14 +1,14 @@
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class PacmanGame {
     static String[] LEVEL_DATA = new String[]{
@@ -22,15 +22,15 @@ public class PacmanGame {
             "wdwwwwdwwdwwwwwwwwdwwdwwwwdw",
             "wddddddwwddddwwddddwwddddddw",
             "wwwwwwdwwwww ww wwwwwdwwwwww",
-            "     wdwwwww ww wwwwwdw     ",
-            "     wdww          wwdw     ",
-            "     wdww www  www wwdw     ",
+            "wwwwwwdwwwww ww wwwwwdwwwwww",
+            "wwwwwwdww          wwdwwwwww",
+            "wwwwwwdww www  www wwdwwwwww",
             "wwwwwwdww wwwwwwww wwdwwwwww",
             "      d   wwwwwwww   d      ",
             "wwwwwwdww wwwwwwww wwdwwwwww",
-            "     wdww wwwwwwww wwdw     ",
-            "     wdww          wwdw     ",
-            "     wdww wwwwwwww wwdw     ",
+            "wwwwwwdww wwwwwwww wwdwwwwww",
+            "wwwwwwdww          wwdwwwwww",
+            "wwwwwwdww wwwwwwww wwdwwwwww",
             "wwwwwwdww wwwwwwww wwdwwwwww",
             "wddddddddddddwwddddddddddddw",
             "wdwwwwdwwwwwdwwdwwwwwdwwwwdw",
@@ -61,9 +61,11 @@ public class PacmanGame {
     static JPanel menu;
     static JLabel introText = new JLabel("Press SPACE to begin");
 
-    static Gameboard board = new Gameboard(WINDOW_WIDTH, WINDOW_HEIGHT);
+    static JLabel levelText, scoreText;
+    static Clip clip, menuMusic, gameloop;
 
-//    static Action start = new startGame();
+    static AudioInputStream audioIn;
+    static Gameboard board = new Gameboard(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     public static void main(String[] args) {
         inspectLevelDataError();
@@ -78,6 +80,12 @@ public class PacmanGame {
         introText.setForeground(Color.WHITE);
         introText.setHorizontalAlignment(SwingConstants.CENTER);
         introText.setVerticalAlignment(SwingConstants.CENTER);
+        levelText = new JLabel();
+        levelText.setForeground(Color.WHITE);
+        levelText.setFont(new Font("Monospaced", Font.BOLD, 30));
+        scoreText = new JLabel();
+        scoreText.setForeground(Color.WHITE);
+        scoreText.setFont(new Font("Monospaced", Font.BOLD, 24));
 
         if(!Gameboard.gameReset) {
             final BufferedImage mainMenu;
@@ -95,6 +103,19 @@ public class PacmanGame {
             };
             menu.add(introText, BorderLayout.CENTER);
             gamefield.add(menu);
+            {
+                try {
+                    audioIn = AudioSystem.getAudioInputStream(new File("src/audio/menutheme.wav"));
+                    menuMusic = AudioSystem.getClip();
+                    menuMusic.open(audioIn);
+                    FloatControl audioControl = (FloatControl) menuMusic.getControl(FloatControl.Type.MASTER_GAIN);
+                    audioControl.setValue(-25.0f);
+                    menuMusic.start();
+                    menuMusic.loop(Clip.LOOP_CONTINUOUSLY);
+                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
             gamefield.revalidate();
             gamefield.repaint();
             gamefield.addKeyListener(new KeyListener() {
@@ -109,8 +130,35 @@ public class PacmanGame {
                 @Override
                 public void keyReleased(KeyEvent e) {
                     if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+                        {
+                            try {
+                                menuMusic.stop();
+                                audioIn = AudioSystem.getAudioInputStream(new File("src/audio/start.wav"));
+                                clip = AudioSystem.getClip();
+                                clip.open(audioIn);
+                                FloatControl audioControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                                audioControl.setValue(-25.0f);
+                                clip.start();
+                                audioIn = AudioSystem.getAudioInputStream(new File("src/audio/gameloop.wav"));
+                                gameloop = AudioSystem.getClip();
+                                gameloop.open(audioIn);
+                                audioControl = (FloatControl) gameloop.getControl(FloatControl.Type.MASTER_GAIN);
+                                audioControl.setValue(-25.0f);
+                                gameloop.start();
+                                gameloop.loop(Clip.LOOP_CONTINUOUSLY);
+                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
                         gamefield.remove(menu);
+                        board.setLayout(new BorderLayout());
+                        scoreText.setVerticalAlignment(SwingConstants.TOP);
+                        scoreText.setHorizontalAlignment(SwingConstants.RIGHT);
+                        board.add(scoreText);
+                        levelText.setVerticalAlignment(SwingConstants.BOTTOM);
+                        board.add(levelText, BorderLayout.LINE_END);
                         gamefield.add(board);
+                        gamefield.revalidate();
                         gamefield.repaint();
                         board.requestFocusInWindow();
                     }

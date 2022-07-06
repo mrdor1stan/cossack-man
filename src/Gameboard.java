@@ -1,4 +1,5 @@
 import javax.imageio.ImageIO;
+import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.swing.Timer;
 import java.awt.*;
@@ -22,7 +23,6 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     static int timer = DEFAULT_TIMER;
     private static final int TIMER_DELAY = (int) (timer * 1.5) / 9;
     int level = 0;
-    JLabel scoreShowcase;
     JLabel timeShowcase = new JLabel();
 
     BufferedImage pause;
@@ -42,8 +42,9 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
         }
     }
 
+    AudioInputStream audioIn;
+    Clip clip, select;
     JLabel pauseScreen = new JLabel(new ImageIcon(pause));
-
     JLabel introScreen = new JLabel(new ImageIcon(intro));
 
     int countdown;
@@ -64,27 +65,26 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                timeShowcase.setText("TIME: " + timer/TIMER_DELAY);
             }
             if (timer == 0) {
-                death = false;
-                tm.stop();
-                pacman.livesLeft--;
-                if (pacman.livesLeft > 0) {
-                    pacman.setSpawnPoint(pacmanDefaultSpawn);
-                    timer = DEFAULT_TIMER;
-                    tm.start();
-                    death = true;
-                } else {
-                    loss();
-                }
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                }
+                pacHurt();
             }
         }
     });
 
     private void loss() {
+        PacmanGame.gameloop.stop();
+        {
+            try {
+                audioIn = AudioSystem.getAudioInputStream(new File("src/audio/lose.wav"));
+                clip = AudioSystem.getClip();
+                clip.open(audioIn);
+                FloatControl audioControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                audioControl.setValue(-25.0f);
+                clip.start();
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
         PacmanGame.gamefield.getContentPane().removeAll();
         final BufferedImage loseScreen;
         try {
@@ -99,6 +99,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                 g.drawImage(loseScreen, 0, 0, null);
             }
         };
+        PacmanGame.scoreText.setForeground(Color.BLACK);
+        youLose.add(PacmanGame.scoreText);
         PacmanGame.gamefield.add(youLose);
         PacmanGame.gamefield.repaint();
         PacmanGame.gamefield.revalidate();
@@ -116,9 +118,33 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                 @Override
                 public void keyReleased(KeyEvent e) {
                     if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                        {
+                            try {
+                                audioIn = AudioSystem.getAudioInputStream(new File("src/audio/start.wav"));
+                                select = AudioSystem.getClip();
+                                select.open(audioIn);
+                                FloatControl audioControl = (FloatControl) select.getControl(FloatControl.Type.MASTER_GAIN);
+                                audioControl.setValue(-25.0f);
+                                select.start();
+                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
                         System.exit(0);
                     }
                     if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                        {
+                            try {
+                                audioIn = AudioSystem.getAudioInputStream(new File("src/audio/start.wav"));
+                                select = AudioSystem.getClip();
+                                select.open(audioIn);
+                                FloatControl audioControl = (FloatControl) select.getControl(FloatControl.Type.MASTER_GAIN);
+                                audioControl.setValue(-25.0f);
+                                select.start();
+                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
                         reset();
                     }
                 }
@@ -127,6 +153,20 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     }
 
     private void victory() {
+        PacmanGame.gameloop.stop();
+        {
+            try {
+                audioIn = AudioSystem.getAudioInputStream(new File("src/audio/win.wav"));
+                clip = AudioSystem.getClip();
+                clip.open(audioIn);
+                clip.start();
+                FloatControl audioControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                audioControl.setValue(-25.0f);
+                clip.loop(Clip.LOOP_CONTINUOUSLY);
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
         PacmanGame.gamefield.getContentPane().removeAll();
         final BufferedImage winScreen;
         try {
@@ -141,6 +181,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                 g.drawImage(winScreen, 0, 0, null);
             }
         };
+        PacmanGame.scoreText.setForeground(Color.BLACK);
+        youWin.add(PacmanGame.scoreText);
         PacmanGame.gamefield.add(youWin);
         PacmanGame.gamefield.revalidate();
         PacmanGame.gamefield.repaint();
@@ -156,9 +198,34 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                 @Override
                 public void keyReleased(KeyEvent e) {
                     if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                        {
+                            try {
+                                audioIn = AudioSystem.getAudioInputStream(new File("src/audio/start.wav"));
+                                select = AudioSystem.getClip();
+                                select.open(audioIn);
+                                FloatControl audioControl = (FloatControl) select.getControl(FloatControl.Type.MASTER_GAIN);
+                                audioControl.setValue(-25.0f);
+                                select.start();
+                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
                         System.exit(0);
                     }
                     if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                        {
+                            try {
+                                clip.stop();
+                                audioIn = AudioSystem.getAudioInputStream(new File("src/audio/start.wav"));
+                                select = AudioSystem.getClip();
+                                select.open(audioIn);
+                                FloatControl audioControl = (FloatControl) select.getControl(FloatControl.Type.MASTER_GAIN);
+                                audioControl.setValue(-25.0f);
+                                select.start();
+                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
                         reset();
                     }
                 }
@@ -167,6 +234,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     }
 
     public void reset() {
+        clip.stop();
         tm.stop();
         gameReset=true;
         PacmanGame.gamefield.getContentPane().removeAll();
@@ -176,10 +244,33 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
         pacman.livesLeft=PacmanGame.PACMAN_LIVES;
         timer=DEFAULT_TIMER;
         dumplingsEaten=0;
+        score=0;
+        PacmanGame.board.setLayout(new BorderLayout());
+        PacmanGame.scoreText.setForeground(Color.WHITE);
+        PacmanGame.scoreText.setVerticalAlignment(SwingConstants.TOP);
+        PacmanGame.scoreText.setHorizontalAlignment(SwingConstants.RIGHT);
+        PacmanGame.board.add(PacmanGame.scoreText);
+        PacmanGame.levelText.setVerticalAlignment(SwingConstants.BOTTOM);
+        PacmanGame.board.add(PacmanGame.levelText, BorderLayout.LINE_END);
+        PacmanGame.levelText.setText("Рівень "+level);
+        PacmanGame.scoreText.setText("Очки: "+score+"pts");
         PacmanGame.gamefield.revalidate();
         PacmanGame.gamefield.repaint();
         PacmanGame.board.revalidate();
         PacmanGame.board.requestFocusInWindow();
+        {
+            try {
+                audioIn = AudioSystem.getAudioInputStream(new File("src/audio/gameloop.wav"));
+                PacmanGame.gameloop = AudioSystem.getClip();
+                PacmanGame.gameloop.open(audioIn);
+                FloatControl audioControl = (FloatControl) PacmanGame.gameloop.getControl(FloatControl.Type.MASTER_GAIN);
+                audioControl.setValue(-25.0f);
+                PacmanGame.gameloop.start();
+                PacmanGame.gameloop.loop(Clip.LOOP_CONTINUOUSLY);
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
     }
 
     int pacmanSpeed = 6;
@@ -216,13 +307,25 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     };
 
-
-    ImageIcon dumpIcon = new ImageIcon("src/images/dumpling.png");
-    Image dumpImage = dumpIcon.getImage();
     int dotDistance = (int) (PacmanGame.SQUARE_SIZE * 0.75 / 2d);
 
     int dotSize = PacmanGame.SQUARE_SIZE - 2 * dotDistance;
+
+    ImageIcon dumpIcon = new ImageIcon("src/images/dumpling.png");
+    Image dumpImage = dumpIcon.getImage();
     Image dumpling = dumpImage.getScaledInstance((int) (dotSize * 1.2), (int) (dotSize * 1.2), Image.SCALE_SMOOTH);
+
+    ImageIcon refIcon = new ImageIcon("src/images/refill.png");
+    Image refImage = refIcon.getImage();
+    Image refill = refImage.getScaledInstance((int) (dotSize * 2.5), (int) (dotSize * 2.5), Image.SCALE_SMOOTH);
+
+    ImageIcon mineIcon = new ImageIcon("src/images/mine.png");
+    Image mineImage = mineIcon.getImage();
+    Image landmine = mineImage.getScaledInstance((int) (dotSize * 2.5), (int) (dotSize * 2.5), Image.SCALE_SMOOTH);
+
+    ImageIcon hpIcon = new ImageIcon("src/images/plusHP.png");
+    Image hpImage = hpIcon.getImage();
+    Image plusHP = hpImage.getScaledInstance((int) (dotSize * 2.5), (int) (dotSize * 2.5), Image.SCALE_SMOOTH);
 
     public Gameboard(int width, int height) {
         this.setSize(width, height);
@@ -230,7 +333,6 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
         tm.addActionListener(this);
-        this.add(timeShowcase);
     }
 
     @Override
@@ -241,7 +343,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     }
 
     boolean levelWon = true;
-    boolean death;
+    boolean death, enemyHit;
     static boolean gameReset=false;
 
     boolean started=false;
@@ -311,6 +413,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
             PacmanGame.updateDots();
             pacman.setSpawnPoint(pacmanDefaultSpawn);
             level++;
+            PacmanGame.levelText.setText("Рівень "+level);
+            PacmanGame.scoreText.setText("Очки: "+score+"pts");
             timer = DEFAULT_TIMER;
             levelWon = false;
             characters = new ArrayList<>();
@@ -331,13 +435,16 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
         for (int i = 0; i < PacmanGame.levelData.length; i++) {
             for (int j = 0; j < PacmanGame.levelData[i].length; j++) {
                 char current = PacmanGame.levelData[i][j];
+                switch (current) {
 //                if(current == PacmanGame.levelData[0][0])
 //                    System.out.println(current);
-                switch (current) {
-                    case 'd' -> //g2d.setColor(dotColor);
-                        //g2d.fillRect(j* PacmanGame.SQUARE_SIZE + dotDistance, PacmanGame.SCOREBAR_HEIGHT+i* PacmanGame.SQUARE_SIZE + dotDistance, dotSize, dotSize);
-                        // SQUARE_SIZE/4
-                            g2d.drawImage(dumpling, j * PacmanGame.SQUARE_SIZE + dotDistance, PacmanGame.SCOREBAR_HEIGHT + i * PacmanGame.SQUARE_SIZE + dotDistance, this);
+                    //g2d.setColor(dotColor);
+                    //g2d.fillRect(j* PacmanGame.SQUARE_SIZE + dotDistance, PacmanGame.SCOREBAR_HEIGHT+i* PacmanGame.SQUARE_SIZE + dotDistance, dotSize, dotSize);
+                    // SQUARE_SIZE/4
+                    case 'd' -> g2d.drawImage(dumpling, j * PacmanGame.SQUARE_SIZE + dotDistance, PacmanGame.SCOREBAR_HEIGHT + i * PacmanGame.SQUARE_SIZE + dotDistance, this);
+                    case 'k' -> g2d.drawImage(landmine, j * PacmanGame.SQUARE_SIZE + dotDistance, PacmanGame.SCOREBAR_HEIGHT + i * PacmanGame.SQUARE_SIZE + dotDistance, this);
+                    case 'h' -> g2d.drawImage(plusHP, j * PacmanGame.SQUARE_SIZE + dotDistance, PacmanGame.SCOREBAR_HEIGHT + i * PacmanGame.SQUARE_SIZE + dotDistance, this);
+                    case 'v' -> g2d.drawImage(refill, j * PacmanGame.SQUARE_SIZE + dotDistance, PacmanGame.SCOREBAR_HEIGHT + i * PacmanGame.SQUARE_SIZE + dotDistance, this);
 
                     /*case 'w' -> {
                         int height = PacmanGame.SQUARE_SIZE;
@@ -382,10 +489,26 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     boolean paused=false;
 
+    long songPos;
+
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_P) {
             if (tm.isRunning()) {
+                {
+                    try {
+                        songPos=PacmanGame.gameloop.getMicrosecondPosition();
+                        PacmanGame.gameloop.stop();
+                        audioIn = AudioSystem.getAudioInputStream(new File("src/audio/pause.wav"));
+                        clip = AudioSystem.getClip();
+                        clip.open(audioIn);
+                        FloatControl audioControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                        audioControl.setValue(-25.0f);
+                        clip.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
                 PacmanGame.board.setLayout(new BorderLayout());
                 PacmanGame.board.add(pauseScreen, BorderLayout.CENTER);
                 PacmanGame.board.revalidate();
@@ -433,10 +556,38 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
             tm.start();
             if(paused) {
+                {
+                    try {
+                        audioIn = AudioSystem.getAudioInputStream(new File("src/audio/pause.wav").getAbsoluteFile());
+                        clip = AudioSystem.getClip();
+                        clip.open(audioIn);
+                        FloatControl audioControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                        audioControl.setValue(-25.0f);
+                        clip.start();
+                        PacmanGame.gameloop.setMicrosecondPosition(songPos);
+                        audioControl = (FloatControl) PacmanGame.gameloop.getControl(FloatControl.Type.MASTER_GAIN);
+                        audioControl.setValue(-25.0f);
+                        PacmanGame.gameloop.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
                 PacmanGame.board.remove(pauseScreen);
                 paused=false;
             }
             if(!started) {
+                {
+                    try {
+                        audioIn = AudioSystem.getAudioInputStream(new File("src/audio/start.wav"));
+                        clip = AudioSystem.getClip();
+                        clip.open(audioIn);
+                        FloatControl audioControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                        audioControl.setValue(-25.0f);
+                        clip.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
                 PacmanGame.board.remove(introScreen);
                 started=true;
             }
@@ -452,43 +603,110 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
         repaint();
     }
 
-   private void checkEnemiesCollisions() {
-      for(Character c:characters){
-    if(c!=pacman){
-        if (pacman.getSpawnPoint().x >= 0 && pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) <= PacmanGame.WINDOW_WIDTH) {
-            int pacX = (pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE;
-            int pacY = (pacman.getSpawnPoint().y + pacman.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE;
-            int charX = (c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE;
-            int charY = (c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE;
+    private void checkEnemiesCollisions() {
+        for(Character c:characters){
+            if(c!=pacman){
+                if (pacman.getSpawnPoint().x >= 0 && pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) <= PacmanGame.WINDOW_WIDTH) {
+                    int pacX = (pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE;
+                    int pacY = (pacman.getSpawnPoint().y + pacman.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE;
+                    int charX = (c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE;
+                    int charY = (c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE;
 
-            if(pacX==charX && pacY==charY){
-                enemyEaten(c);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    if(pacX==charX && pacY==charY) {
+                        if (!c.invincible) {
+                            enemyEaten(c);
+                            spawnPowerUp();
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
                 }
             }
         }
-}
-       }
+    }
 
-
-
-   }
+    private void spawnPowerUp() {
+        Random rng = new Random();
+        int spawnX = rng.nextInt(1, 28);
+        int spawnY = rng.nextInt(1, 28);
+        if(PacmanGame.levelData[spawnX][spawnY] != 'w') {
+            int powerType = rng.nextInt(1, 4);
+            switch (powerType) {
+                case 1 -> PacmanGame.levelData[spawnX][spawnY] = 'v';
+                case 2 -> PacmanGame.levelData[spawnX][spawnY] = 'h';
+                case 3 -> PacmanGame.levelData[spawnX][spawnY] = 'k';
+            }
+        }
+    }
 
     private void enemyEaten(Character toDelete) {
+        try {
+            audioIn = AudioSystem.getAudioInputStream(new File("src/audio/smack.wav"));
+            clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            FloatControl audioControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            audioControl.setValue(-15.0f);
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+            throw new RuntimeException(ex);
+        }
         if(toDelete.death() == 0) {
+            enemyHit=true;
+            ActionListener removeHit = e -> enemyHit = false;
+            Timer duration = new Timer(500, removeHit);
+            duration.setRepeats(false);
+            duration.start();
+            score+=500;
+            PacmanGame.scoreText.setText("Очки: "+score+"pts");
             ArrayList<Character> newCharacters = new ArrayList<>();
 
             for (Character c : characters) {
-                if (c != toDelete)
+                if (c != toDelete) {
                     newCharacters.add(c);
+                }
 
             }
             characters = newCharacters;
-            if (characters.size() == 1)
+            if (characters.size() == 1) {
                 levelWon = true;
+            }
+        }
+        else {
+            toDelete.invincible = true;
+            ActionListener removeInvincible = e -> toDelete.invincible = false;
+            Timer duration = new Timer(1000, removeInvincible);
+            duration.setRepeats(false);
+            duration.start();
+        }
+    }
+
+    private void pacHurt() {
+        death = false;
+        tm.stop();
+        pacman.livesLeft--;
+        if (pacman.livesLeft > 0) {
+            score-=200;
+            PacmanGame.scoreText.setText("Очки: "+score+"pts");
+            pacman.setSpawnPoint(pacmanDefaultSpawn);
+            timer = DEFAULT_TIMER;
+            tm.start();
+            death = true;
+        } else {
+            loss();
+        }
+        try {
+            audioIn = AudioSystem.getAudioInputStream(new File("src/audio/hurt.wav"));
+            clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            FloatControl audioControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            audioControl.setValue(-10.0f);
+            clip.start();
+            Thread.sleep(1000);
+        } catch (InterruptedException | UnsupportedAudioFileException | LineUnavailableException | IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
@@ -500,16 +718,72 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                 PacmanGame.levelData[(pacman.getSpawnPoint().y + pacman.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
                         [(pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE] = ' ';
                 dumplingsEaten++;
-                if (dumplingsEaten == 10) {
-//                    score+=100;
-//                    scoreShowcase.setText(score+" pts");
+                if (dumplingsEaten == 20) {
+                    score+=100;
+                    PacmanGame.scoreText.setText("Очки: "+score+"pts");
                     timer += 10;
                     dumplingsEaten = 0;
                 }
             }
+            if (PacmanGame.levelData[(pacman.getSpawnPoint().y + pacman.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
+                    [(pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE] == 'v') {
+                PacmanGame.levelData[(pacman.getSpawnPoint().y + pacman.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
+                        [(pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE] = ' ';
+                {
+                    try {
+                        audioIn = AudioSystem.getAudioInputStream(new File("src/audio/bonus.wav"));
+                        clip = AudioSystem.getClip();
+                        clip.open(audioIn);
+                        FloatControl audioControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                        audioControl.setValue(-15.0f);
+                        clip.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+                PacmanGame.updateDots();
+            }
+            if (PacmanGame.levelData[(pacman.getSpawnPoint().y + pacman.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
+                    [(pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE] == 'h') {
+                PacmanGame.levelData[(pacman.getSpawnPoint().y + pacman.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
+                        [(pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE] = ' ';
+                {
+                    try {
+                        audioIn = AudioSystem.getAudioInputStream(new File("src/audio/heal.wav"));
+                        clip = AudioSystem.getClip();
+                        clip.open(audioIn);
+                        FloatControl audioControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                        audioControl.setValue(-10.0f);
+                        clip.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+                if(pacman.livesLeft<3) {
+                    pacman.livesLeft++;
+                }
+                score+=50;
+                PacmanGame.scoreText.setText("Очки: "+score+"pts");
+            }
+            if (PacmanGame.levelData[(pacman.getSpawnPoint().y + pacman.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
+                    [(pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE] == 'k') {
+                PacmanGame.levelData[(pacman.getSpawnPoint().y + pacman.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
+                        [(pacman.getSpawnPoint().x + pacman.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE] = ' ';
+                {
+                    try {
+                        audioIn = AudioSystem.getAudioInputStream(new File("src/audio/boom.wav"));
+                        clip = AudioSystem.getClip();
+                        clip.open(audioIn);
+                        FloatControl audioControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                        audioControl.setValue(-5.0f);
+                        clip.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+                pacHurt();
+            }
         }
-
-//        }
     }
 
     private void moveCharacters() {

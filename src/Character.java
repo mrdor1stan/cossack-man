@@ -18,6 +18,7 @@ public class Character{
     ImageIcon SPRITE_RIGHT;
     Point spawnPoint;
 
+    boolean invincible;
 
     public Point getSpawnPoint() {
         return spawnPoint;
