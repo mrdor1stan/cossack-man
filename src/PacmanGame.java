@@ -8,7 +8,6 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class PacmanGame {
     static String[] LEVEL_DATA = new String[]{
@@ -69,6 +68,7 @@ public class PacmanGame {
 
     public static void main(String[] args) {
         inspectLevelDataError();
+        updateDots();
         gamefield = new JFrame("Cossack-Man");
         gamefield.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         gamefield.setSize(798, 1032);
@@ -180,13 +180,8 @@ public class PacmanGame {
 
     private static void inspectLevelDataError() {
         int length = LEVEL_DATA[0].length();
-        for(int i=1;i< LEVEL_DATA.length;i++){
-            if(LEVEL_DATA[i].length()!=length)throw new RuntimeException("Level is not built correctly: line "+i);
-        }
-        for(int i=0;i< LEVEL_DATA.length;i++){
-            for(int j=0;j<length;j++){
-                levelData[i][j]=LEVEL_DATA[i].charAt(j);
-            }
+        for(int i=1;i< LEVEL_DATA.length;i++) {
+            if (LEVEL_DATA[i].length() != length) throw new RuntimeException("Level is not built correctly: line " + i);
         }
     }
 }
