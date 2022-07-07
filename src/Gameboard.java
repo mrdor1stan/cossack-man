@@ -156,6 +156,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     }
 
     private void victory() {
+        tm.stop();
         win=true;
         PacmanGame.gameloop.stop();
         {
@@ -436,16 +437,11 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
             characters = new ArrayList<>();
             Collections.addAll(characters, levelSetup[level - 1]);
         } else {
-            gameWon();
+            victory();
         }
     }
 
-    private void gameWon() {
-        tm.stop();
-        victory();
-    }
-
-    public void printMaze(Graphics2D g2d) {
+    private void printMaze(Graphics2D g2d) {
 //        g2d.fillRect(120,0,5,720);
 //        g2d.fillRect(0,120,560,5);
         for (int i = 0; i < PacmanGame.levelData.length; i++) {
