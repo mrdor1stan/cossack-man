@@ -253,7 +253,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
         //PacmanGame.gamefield.removeKeyListener(this);
         PacmanGame.board = new Gameboard(PacmanGame.WINDOW_WIDTH, PacmanGame.WINDOW_HEIGHT);
         PacmanGame.gamefield.add(PacmanGame.board);
-        pacman.livesLeft = PacmanGame.PACMAN_LIVES;
+        pacman.setLivesLeft(PacmanGame.PACMAN_LIVES);
         timer = DEFAULT_TIMER;
         dumplingsEaten = 0;
         score = 0;
@@ -290,7 +290,7 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     int pacmanSpeed = 6;
     int dumplingsEaten = 0;
 
-    Character pacman = new Character(PacmanGame.PACMAN_LIVES, pacmanSpeed, new ImageIcon("src/images/cossack1.png"), pacmanDefaultSpawn, new ImageIcon("src/images/cossack1.png").getImage().getWidth(this), new ImageIcon("src/images/cossack1.png").getImage().getHeight(this));
+    Character pacman = new Character(PacmanGame.PACMAN_LIVES, pacmanSpeed, new ImageIcon("src/images/cossack1.png"), pacmanDefaultSpawn);
     //X selects String (vertical movement), Y selects char (horizontal movement)
 
     ArrayList<Character> characters;
@@ -413,12 +413,12 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
 
     private void drawLives(Graphics2D g2d) {
         int diff = 125;
-        for (int i = 0; i < pacman.livesLeft; i++) {
+        for (int i = 0; i < pacman.getLivesLeft(); i++) {
             g2d.drawImage(heartIcon.getImage(), diff + (10 + heartIcon.getImage().getWidth(this)) * i, (int) ((PacmanGame.LEVEL_DATA.length + 0.25) * PacmanGame.SQUARE_SIZE + PacmanGame.SCOREBAR_HEIGHT), this);
         }
 
-        if (pacman.livesLeft < 3) {
-            for (int i = pacman.livesLeft; i < 3; i++) {
+        if (pacman.getLivesLeft() < 3) {
+            for (int i = pacman.getLivesLeft(); i < 3; i++) {
                 g2d.drawImage(brokenHeartIcon.getImage(), diff + (10 + heartIcon.getImage().getWidth(this)) * i, (int) ((PacmanGame.LEVEL_DATA.length + 0.25) * PacmanGame.SQUARE_SIZE + PacmanGame.SCOREBAR_HEIGHT), this);
             }
         }
@@ -628,8 +628,12 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                     int charX = (c.getSpawnPoint().x + c.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE;
                     int charY = (c.getSpawnPoint().y + c.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE;
 
-                    if(pacX==charX && pacY==charY) {
-                        if (!c.invincible) {
+                    int charNextX = (determinePoint(c).x + c.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE;
+                    int charNextY = (determinePoint(c).y + c.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE;
+
+
+                    if((pacX==charX && pacY==charY) || (pacX==charNextX && pacY==charY) || (pacX==charX && pacY==charNextY)) {
+                        if (!c.isInvincible()) {
                             enemyEaten(c);
                             spawnPowerUp();
                             try {
@@ -692,8 +696,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
             }
         }
         else {
-            toDelete.invincible = true;
-            ActionListener removeInvincible = e -> toDelete.invincible = false;
+            toDelete.setInvincible(true);
+            ActionListener removeInvincible = e -> toDelete.setInvincible(false);
             Timer duration = new Timer(1000, removeInvincible);
             duration.setRepeats(false);
             duration.start();
@@ -703,8 +707,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
     private void pacHurt() {
         death = false;
         tm.stop();
-        pacman.livesLeft--;
-        if (pacman.livesLeft > 0) {
+        pacman.death();
+        if (pacman.getLivesLeft() > 0) {
             score-=200;
             PacmanGame.scoreText.setText("Очки: "+score+"pts");
             pacman.setSpawnPoint(pacmanDefaultSpawn);
@@ -776,8 +780,8 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                         throw new RuntimeException(ex);
                     }
                 }
-                if(pacman.livesLeft<3) {
-                    pacman.livesLeft++;
+                if(pacman.getLivesLeft()<3) {
+                    pacman.setLivesLeft(pacman.getLivesLeft()+1);
                 }
                 score+=50;
                 PacmanGame.scoreText.setText("Очки: "+score+"pts");
@@ -822,28 +826,28 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
             try {
                 switch (currentMovement) {
                     case RIGHT -> {
-                        spawnPoint.x += c.speed;
+                        spawnPoint.x += c.getSpeed();
                         if (PacmanGame.levelData[(spawnPoint.y + c.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
                                 [(spawnPoint.x + c.getCurrentSprite().getImage().getWidth(this) - 5) / PacmanGame.SQUARE_SIZE] == 'w') {
                             spawnPoint.x -= ((spawnPoint.x + c.getCurrentSprite().getImage().getWidth(this)) % PacmanGame.SQUARE_SIZE - diff);
                         }
                     }
                     case LEFT -> {
-                        spawnPoint.x -= c.speed;
+                        spawnPoint.x -= c.getSpeed();
                         if (PacmanGame.levelData[(spawnPoint.y + c.getCurrentSprite().getImage().getHeight(this) / 2 - PacmanGame.SCOREBAR_HEIGHT) / PacmanGame.SQUARE_SIZE]
                                 [(spawnPoint.x + 5) / PacmanGame.SQUARE_SIZE] == 'w') {
                             spawnPoint.x += (PacmanGame.SQUARE_SIZE - (spawnPoint.x % PacmanGame.SQUARE_SIZE) - diff);
                         }
                     }
                     case UP -> {
-                        spawnPoint.y -= c.speed;
+                        spawnPoint.y -= c.getSpeed();
                         if (PacmanGame.levelData[(spawnPoint.y - PacmanGame.SCOREBAR_HEIGHT + 5) / PacmanGame.SQUARE_SIZE]
                                 [(spawnPoint.x + c.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE] == 'w') {
                             spawnPoint.y += (PacmanGame.SQUARE_SIZE - (spawnPoint.y % PacmanGame.SQUARE_SIZE) - diff);
                         }
                     }
                     case DOWN -> {
-                        spawnPoint.y += c.speed;
+                        spawnPoint.y += c.getSpeed();
 
                         if (PacmanGame.levelData[(spawnPoint.y + c.getCurrentSprite().getImage().getHeight(this) - PacmanGame.SCOREBAR_HEIGHT - 5) / PacmanGame.SQUARE_SIZE]
                                 [(spawnPoint.x + c.getCurrentSprite().getImage().getWidth(this) / 2) / PacmanGame.SQUARE_SIZE] == 'w') {
@@ -855,9 +859,9 @@ public class Gameboard extends JPanel implements KeyListener, ActionListener {
                 }
             } catch (IndexOutOfBoundsException e) {
                 if (spawnPoint.getX() <= -c.getCurrentSprite().getImage().getWidth(this))
-                    spawnPoint.x = PacmanGame.WINDOW_WIDTH - c.speed;
+                    spawnPoint.x = PacmanGame.WINDOW_WIDTH - c.getSpeed();
                 else if (spawnPoint.getX() >= PacmanGame.WINDOW_WIDTH)
-                    spawnPoint.x = -c.getCurrentSprite().getImage().getWidth(this) + c.speed;
+                    spawnPoint.x = -c.getCurrentSprite().getImage().getWidth(this) + c.getSpeed();
                 spawnPoint.y = PacmanGame.SQUARE_SIZE*14+PacmanGame.SCOREBAR_HEIGHT+diff;
             }
 
